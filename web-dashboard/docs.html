@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Dokumentasi AES-256 — Panduan & Algoritma</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* ── DOCS-SPECIFIC ── */
+        .doc-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        .doc-hero {
+            text-align: center;
+            padding: 48px 24px 40px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+
+        .doc-hero h1 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -.5px;
+            background: linear-gradient(135deg, var(--ind-l), var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .doc-hero p {
+            color: var(--muted);
+            font-size: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .doc-section {
+            margin-bottom: 40px;
+        }
+
+        .doc-section h2 {
+            font-size: 21px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .doc-section h2 svg {
+            flex-shrink: 0;
+            opacity: .7;
+        }
+
+        .doc-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 24px 0 10px;
+            color: var(--ind-l);
+        }
+
+        .doc-section h4 {
+            font-size: 13.5px;
+            font-weight: 700;
+            margin: 16px 0 6px;
+            color: var(--cyan);
+        }
+
+        .doc-section p,
+        .doc-section li {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--sub);
+            margin-bottom: 8px;
+        }
+
+        .doc-section ul,
+        .doc-section ol {
+            padding-left: 22px;
+            margin-bottom: 12px;
+        }
+
+        .doc-section li {
+            margin-bottom: 4px;
+        }
+
+        .doc-section strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .doc-section code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: var(--hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--cyan);
+        }
+
+        .callout {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            line-height: 1.7;
+            margin: 14px 0;
+        }
+
+        .callout.blue {
+            background: var(--ind-g);
+            border: 1px solid rgba(99, 102, 241, .25);
+            color: var(--sub);
+        }
+
+        .callout.yellow {
+            background: rgba(251, 191, 36, .07);
+            border: 1px solid rgba(251, 191, 36, .22);
+            color: var(--sub);
+        }
+
+        .callout.green {
+            background: rgba(74, 222, 128, .07);
+            border: 1px solid rgba(74, 222, 128, .2);
+            color: var(--sub);
+        }
+
+        .callout.red {
+            background: rgba(251, 115, 133, .07);
+            border: 1px solid rgba(251, 115, 133, .2);
+            color: var(--sub);
+        }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .callout.blue .callout-title {
+            color: var(--ind-l);
+        }
+
+        .callout.yellow .callout-title {
+            color: var(--yellow);
+        }
+
+        .callout.green .callout-title {
+            color: var(--green);
+        }
+
+        .callout.red .callout-title {
+            color: var(--rose);
+        }
+
+        /* Block diagram */
+        .block-flow {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin: 16px 0;
+        }
+
+        .bf-box {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 96px;
+            border: 1px solid;
+        }
+
+        .bf-box.plain {
+            background: rgba(74, 222, 128, .08);
+            border-color: rgba(74, 222, 128, .25);
+            color: var(--green);
+        }
+
+        .bf-box.key {
+            background: rgba(251, 191, 36, .08);
+            border-color: rgba(251, 191, 36, .22);
+            color: var(--yellow);
+        }
+
+        .bf-box.op {
+            background: rgba(99, 102, 241, .12);
+            border-color: rgba(99, 102, 241, .3);
+            color: var(--ind-l);
+        }
+
+        .bf-box.iv {
+            background: rgba(167, 139, 250, .1);
+            border-color: rgba(167, 139, 250, .25);
+            color: var(--violet);
+        }
+
+        .bf-box.out {
+            background: rgba(34, 211, 238, .08);
+            border-color: rgba(34, 211, 238, .22);
+            color: var(--cyan);
+        }
+
+        .bf-box.xor {
+            background: rgba(251, 146, 60, .1);
+            border-color: rgba(251, 146, 60, .25);
+            color: var(--orange);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .bf-arr {
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        /* Round table */
+        .round-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin: 12px 0;
+        }
+
+        .round-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border2);
+        }
+
+        .round-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .round-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .round-table td:first-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--ind-l);
+            font-weight: 700;
+        }
+
+        /* State matrix */
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            width: 220px;
+            margin: 12px 0;
+        }
+
+        .sg-cell {
+            background: var(--hover);
+            border: 1px solid var(--border2);
+            border-radius: 5px;
+            padding: 6px 0;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        .sg-cell.hl {
+            background: rgba(99, 102, 241, .15);
+            border-color: rgba(99, 102, 241, .3);
+            color: var(--ind-l);
+        }
+
+        /* Step indicator */
+        .steps {
+            counter-reset: step;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--ind-g);
+            border: 2px solid var(--ind);
+            color: var(--ind-l);
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-body h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .step-body p {
+            font-size: 13.5px;
+            color: var(--sub);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* Nav */
+        .doc-nav {
+            position: sticky;
+            top: 58px;
+            background: var(--surf);
+            border-bottom: 1px solid var(--border);
+            z-index: 90;
+            padding: 0 24px;
+            overflow-x: auto;
+        }
+
+        .doc-nav-inner {
+            display: flex;
+            gap: 0;
+            white-space: nowrap;
+        }
+
+        .doc-nav a {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: all .2s;
+        }
+
+        .doc-nav a:hover {
+            color: var(--text);
+        }
+
+        .doc-nav a.active {
+            color: var(--ind-l);
+            border-bottom-color: var(--ind);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--sub);
+            font-size: 13px;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--hover);
+            transition: all .2s;
+            margin-bottom: 16px;
+        }
+
+        .back-btn:hover {
+            border-color: var(--ind);
+            color: var(--ind-l);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .tag.alg {
+            background: var(--ind-g);
+            color: var(--ind-l);
+        }
+
+        .tag.mode {
+            background: rgba(34, 211, 238, .1);
+            color: var(--cyan);
+        }
+
+        .tag.nist {
+            background: rgba(251, 191, 36, .1);
+            color: var(--yellow);
+        }
+
+        pre.code-block {
+            background: var(--hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text);
+            overflow-x: auto;
+            line-height: 1.75;
+            margin: 10px 0;
+        }
+
+        pre.code-block .cm {
+            color: var(--muted);
+        }
+
+        pre.code-block .kw {
+            color: var(--violet);
+        }
+
+        pre.code-block .fn {
+            color: var(--cyan);
+        }
+
+        pre.code-block .str {
+            color: var(--green);
+        }
+
+        pre.code-block .num {
+            color: var(--orange);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <a href="index.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Kembali ke Dashboard
+        </a>
+        <span class="topbar-title">Dokumentasi AES-256</span>
+        <div class="topbar-right">
+            <span class="topbar-algo">AES-256-CBC</span>
+            <button class="theme-btn" onclick="toggleTheme()" title="Toggle tema">
+                <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+                <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="display:none">
+                    <circle cx="12" cy="12" r="5" />
+                    <line x1="12" y1="1" x2="12" y2="3" />
+                    <line x1="12" y1="21" x2="12" y2="23" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="1" y1="12" x2="3" y2="12" />
+                    <line x1="21" y1="12" x2="23" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <nav class="doc-nav">
+        <div class="doc-nav-inner">
+            <a href="#panduan" class="active">Panduan Penggunaan</a>
+            <a href="#pengantar">Pengantar AES</a>
+            <a href="#struktur">Struktur Blok</a>
+            <a href="#round">Proses Per Round</a>
+            <a href="#cbc">Mode CBC</a>
+            <a href="#key-schedule">Key Schedule</a>
+            <a href="#output">Format Output</a>
+            <a href="#dart">Kompatibilitas Dart</a>
+            <a href="#faq">FAQ</a>
+        </div>
+    </nav>
+
+    <div class="doc-wrap">
+
+        <div class="doc-hero">
+            <h1>Dokumentasi AES-256-CBC</h1>
+            <p>Panduan lengkap penggunaan dashboard, penjelasan algoritma AES dari dasar hingga cara kerja per blok,
+                mode operasi CBC, dan kompatibilitas dengan implementasi Dart.</p>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 1: PANDUAN PENGGUNAAN
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="panduan">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v4m0 4h.01" />
+                </svg>
+                1. Panduan Penggunaan Dashboard
+            </h2>
+
+            <h3>1.1 Persyaratan</h3>
+            <ul>
+                <li>Browser modern: <strong>Google Chrome</strong>, Microsoft Edge, atau Firefox (terbaru)</li>
+                <li>JavaScript harus aktif (digunakan untuk Web Crypto API)</li>
+                <li>Koneksi internet hanya untuk memuat Google Fonts (opsional)</li>
+                <li>Tidak membutuhkan server — berjalan penuh di browser (<em>client-side only</em>)</li>
+            </ul>
+
+            <h3>1.2 Cara Membuka</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h4>Buka index.html</h4>
+                        <p>Double-klik file <code>web-dashboard/index.html</code> di File Explorer. Atau jika memakai VS
+                            Code, gunakan <em>Live Server</em> untuk menghindari masalah CORS.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h4>Kunci Otomatis Dimuat</h4>
+                        <p>Dashboard secara otomatis memuat kunci default <code>SkadutaPresensi2025SecureKey1234</code>
+                            dari project Dart. Indikator hijau di pojok kanan atas menandakan kunci aktif.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h4>Pilih Fitur dari Sidebar</h4>
+                        <p>Navigasi menggunakan sidebar kiri. Di perangkat mobile, sidebar dapat dibuka dengan tombol
+                            hamburger (≡) di pojok kiri atas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>1.3 Fitur Per Tab</h3>
+
+            <h4>Tab 1 — Dashboard</h4>
+            <p>Halaman utama berisi:</p>
+            <ul>
+                <li><strong>4 Kartu Statistik:</strong> Total operasi, total dekripsi, rata-rata latensi enkripsi dan
+                    dekripsi</li>
+                <li><strong>Grafik Latensi Live:</strong> Memperbarui otomatis setiap operasi dijalankan (max 20 titik
+                    terakhir)</li>
+                <li><strong>Info AES-256-CBC:</strong> Spesifikasi algoritma</li>
+                <li><strong>Aktivitas Terbaru:</strong> Riwayat operasi secara real-time</li>
+            </ul>
+
+            <h4>Tab 2 — Enkripsi Manual (Menu 1 Dart)</h4>
+            <p>Setara dengan menu <em>"Enkripsi Manual"</em> di program Dart:</p>
+            <ul>
+                <li>Masukkan teks/JSON apapun di kolom kiri</li>
+                <li>Klik <strong>"Enkripsi Sekarang"</strong> → hasilnya muncul di kolom kanan</li>
+                <li>Laporan otomatis: latensi, kecepatan (KB/s), ukuran asli, ukuran enkripsi, rasio</li>
+                <li>Tabel perbandingan ukuran file + cek klaim dosen (rasio 1.8–2.2x)</li>
+            </ul>
+
+            <h4>Tab 3 — Dekripsi Manual (Menu 2 Dart)</h4>
+            <ul>
+                <li>Tempelkan ciphertext Base64 di kolom kiri</li>
+                <li>Tombol <strong>"Paste Terakhir"</strong> otomatis mengisi dari hasil enkripsi sebelumnya</li>
+                <li>Laporan: latensi, kecepatan, verifikasi, dan simulasi Inverse Key Schedule</li>
+            </ul>
+
+            <h4>Tab 4 — Batch Test JSON (Menu 3 Dart)</h4>
+            <p>Setara dengan <code>menuBatchTest()</code> di <code>aes_test.dart</code>:</p>
+            <ul>
+                <li><strong>Load Sample:</strong> Memuat 7 contoh data API yang sudah disiapkan</li>
+                <li><strong>Tambah Item:</strong> Tambah elemen baru ke array JSON sebelum test</li>
+                <li>Klik <strong>"Jalankan Batch Test"</strong> → proses enkripsi + dekripsi seluruh JSON + per-item
+                </li>
+                <li>Hasil: laporan lengkap, tabel ukuran, per-item status OK/FAIL, rata-rata latensi</li>
+                <li><strong>Download File Output:</strong> Setara dengan folder <code>code/original/</code>,
+                    <code>code/enkripsi/</code>, <code>code/dekripsi/</code>
+                </li>
+            </ul>
+
+            <h4>Tab 5 — Log Latensi (Menu 4 Dart)</h4>
+            <ul>
+                <li>Format log sama persis dengan file <code>latency.log</code> dari Dart</li>
+                <li>Filter: Semua / Enkripsi / Dekripsi / Batch / Rata-rata / JSON</li>
+                <li>Tombol <strong>"Export latency.log"</strong> untuk download file teks</li>
+            </ul>
+
+            <h4>Tab 6 — Log Data (Menu 5 Dart)</h4>
+            <ul>
+                <li>Format sama dengan <code>data.log</code> dari Dart</li>
+                <li>Menampilkan ukuran file, latensi, kecepatan, dan status verifikasi per operasi</li>
+                <li>Tombol <strong>"Export data.log"</strong></li>
+            </ul>
+
+            <h4>Tab 7 — Pengaturan Kunci</h4>
+            <ul>
+                <li><strong>Set Manual:</strong> Input kunci 32 karakter, ada bar kekuatan kunci</li>
+                <li><strong>Upload key.json:</strong> Drag & drop file JSON dari project Dart</li>
+                <li><strong>Kunci Default:</strong> Satu klik memuat <code>SkadutaPresensi2025SecureKey1234</code></li>
+                <li>Toggle tampil/sembunyikan kunci dengan ikon mata</li>
+            </ul>
+
+            <h4>Tab 8 — Penyimpanan Lokal</h4>
+            <ul>
+                <li>Grafik bar penggunaan localStorage (estimasi kapasitas 5 MB)</li>
+                <li>Ukuran tiap data yang tersimpan</li>
+                <li><strong>Hapus per-kategori:</strong> Hanya hapus log latensi, log data, atau statistik</li>
+                <li><strong>Hapus Semua:</strong> Reset total semua data aplikasi</li>
+            </ul>
+
+            <div class="callout blue">
+                <div class="callout-title">💡 Toggle Tema Gelap / Terang</div>
+                Klik ikon <strong>bulan/matahari</strong> di pojok kanan topbar untuk beralih antara tema gelap dan
+                terang. Preferensi tersimpan otomatis dan diingat saat halaman direfresh.
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 2: PENGANTAR AES
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="pengantar">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                </svg>
+                2. Pengantar AES (Advanced Encryption Standard)
+                <span class="tag nist">NIST FIPS 197</span>
+            </h2>
+
+            <h3>2.1 Sejarah Singkat</h3>
+            <p>AES (<em>Advanced Encryption Standard</em>) dipilih oleh <strong>NIST</strong> (National Institute of
+                Standards and Technology) pada tahun 2001 sebagai standar enkripsi simetris pengganti DES. Algoritma
+                yang terpilih adalah <strong>Rijndael</strong>, karya kriptografer Belgia Joan Daemen dan Vincent
+                Rijmen.</p>
+            <ul>
+                <li><strong>1997:</strong> NIST membuka kompetisi pengganti DES</li>
+                <li><strong>2001:</strong> Rijndael ditetapkan sebagai AES (FIPS PUB 197)</li>
+                <li><strong>Sekarang:</strong> Digunakan di seluruh dunia — HTTPS, Wi-Fi WPA2/3, disk encryption, VPN,
+                    dan lainnya</li>
+            </ul>
+
+            <h3>2.2 Varian Ukuran Kunci</h3>
+            <table class="round-table">
+                <thead>
+                    <tr>
+                        <th>Varian</th>
+                        <th>Ukuran Kunci</th>
+                        <th>Jumlah Round</th>
+                        <th>Keamanan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AES-128</td>
+                        <td>128-bit (16 byte)</td>
+                        <td>10 round</td>
+                        <td>~128-bit security</td>
+                    </tr>
+                    <tr>
+                        <td>AES-192</td>
+                        <td>192-bit (24 byte)</td>
+                        <td>12 round</td>
+                        <td>~192-bit security</td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--cyan)">AES-256 ✓</td>
+                        <td>256-bit (32 byte)</td>
+                        <td>14 round</td>
+                        <td>~256-bit security</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Dashboard ini menggunakan <strong>AES-256</strong> dengan kunci 32 karakter ASCII = 256-bit. Ini adalah
+                level tertinggi dan paling aman yang tersedia di AES.</p>
+
+            <h3>2.3 Enkripsi Simetris</h3>
+            <p>AES adalah enkripsi <strong>simetris</strong> — kunci yang sama digunakan untuk enkripsi dan dekripsi.
+                Ini berbeda dengan enkripsi asimetris (RSA) yang menggunakan pasangan kunci publik-privat.</p>
+            <div class="block-flow">
+                <div class="bf-box plain">Plaintext</div>
+                <div class="bf-arr">→</div>
+                <div class="bf-box op">AES-256<br />Encrypt</div>
+                <div class="bf-arr">←→</div>
+                <div class="bf-box key">Kunci 256-bit<br />(sama)</div>
+                <div class="bf-arr">→</div>
+                <div class="bf-box op">AES-256<br />Decrypt</div>
+                <div class="bf-arr">→</div>
+                <div class="bf-box plain">Plaintext</div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 3: STRUKTUR BLOK
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="struktur">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                3. Struktur Blok AES
+            </h2>
+
+            <h3>3.1 Block Size</h3>
+            <p>AES beroperasi pada <strong>blok data 128-bit (16 byte)</strong> tetap. Jika plaintext lebih panjang dari
+                16 byte, ia dibagi menjadi beberapa blok, dan mode operasi (seperti CBC) menentukan cara memproses
+                blok-blok tersebut. Jika panjang data tidak kelipatan 16, ditambahkan <strong>padding PKCS7</strong>.
+            </p>
+
+            <h3>3.2 State Matrix (4×4)</h3>
+            <p>AES merepresentasikan tiap blok 16 byte sebagai matriks <strong>4×4 byte</strong> yang disebut
+                <em>state</em>. Semua operasi internal AES dilakukan pada matriks ini:
+            </p>
+            <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin:12px 0;">
+                <div>
+                    <p style="font-size:12px;color:var(--muted);margin-bottom:6px">State matrix 4×4 (tiap sel = 1 byte)
+                    </p>
+                    <div class="state-grid">
+                        <div class="sg-cell hl">b₀</div>
+                        <div class="sg-cell">b₄</div>
+                        <div class="sg-cell">b₈</div>
+                        <div class="sg-cell">b₁₂</div>
+                        <div class="sg-cell">b₁</div>
+                        <div class="sg-cell hl">b₅</div>
+                        <div class="sg-cell">b₉</div>
+                        <div class="sg-cell">b₁₃</div>
+                        <div class="sg-cell">b₂</div>
+                        <div class="sg-cell">b₆</div>
+                        <div class="sg-cell hl">b₁₀</div>
+                        <div class="sg-cell">b₁₄</div>
+                        <div class="sg-cell">b₃</div>
+                        <div class="sg-cell">b₇</div>
+                        <div class="sg-cell">b₁₁</div>
+                        <div class="sg-cell hl">b₁₅</div>
+                    </div>
+                </div>
+                <div style="max-width:380px;">
+                    <p>Byte-byte input diisikan <strong>kolom per kolom</strong> (column-major order). Sel diagonal yang
+                        disorot adalah diagonal utama yang dipakai dalam operasi <em>ShiftRows</em>.</p>
+                    <p>Setiap operasi round AES (SubBytes, ShiftRows, MixColumns, AddRoundKey) memanipulasi matriks ini
+                        secara berurutan.</p>
+                </div>
+            </div>
+
+            <h3>3.3 Padding PKCS7</h3>
+            <p>Karena AES membutuhkan input kelipatan 16 byte, padding PKCS7 ditambahkan:</p>
+            <ul>
+                <li>Jika kurang N byte, tambahkan N byte bernilai N</li>
+                <li>Contoh: data = 13 byte → tambah 3 byte bernilai <code>0x03 0x03 0x03</code></li>
+                <li>Jika sudah kelipatan 16, tambahkan satu blok penuh 16 byte bernilai <code>0x10</code></li>
+            </ul>
+            <pre class="code-block"><span class="cm">// Contoh PKCS7: "Hello" (5 byte) → perlu 11 byte padding</span>
+<span class="str">"Hello"</span>  → [48 65 6C 6C 6F | <span style="color:var(--orange)">0B 0B 0B 0B 0B 0B 0B 0B 0B 0B 0B</span>]
+<span class="cm">                  (5 byte)     (11 byte padding = nilai 0x0B = 11)</span></pre>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 4: PROSES PER ROUND
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="round">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                </svg>
+                4. Proses Per Round AES-256
+            </h2>
+
+            <div class="callout blue">
+                <div class="callout-title">Struktur Round AES-256 (14 Round)</div>
+                AES-256 terdiri dari <strong>14 round</strong>. Round pertama (round 0) hanya AddRoundKey. Round 1–13
+                lengkap 4 langkah. Round 14 (terakhir) tanpa MixColumns.
+            </div>
+
+            <h3>4.1 Diagram Alur Enkripsi</h3>
+            <div class="block-flow" style="flex-direction:column;align-items:flex-start;gap:8px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="bf-box plain" style="min-width:130px">Plaintext Block<br /><small>(16 byte)</small>
+                    </div>
+                    <div class="bf-arr">→</div>
+                    <div class="bf-box op" style="min-width:150px">AddRoundKey (Round 0)<br /><small>XOR dengan
+                            Key[0]</small></div>
+                </div>
+                <div style="margin-left:20px;border-left:2px dashed var(--border2);padding-left:16px;">
+                    <p style="font-size:12px;color:var(--muted);margin:4px 0">Ulangi untuk Round 1 – 13:</p>
+                    <div class="block-flow" style="gap:6px;">
+                        <div class="bf-box op">①SubBytes</div>
+                        <div class="bf-arr">→</div>
+                        <div class="bf-box op">②ShiftRows</div>
+                        <div class="bf-arr">→</div>
+                        <div class="bf-box op">③MixColumns</div>
+                        <div class="bf-arr">→</div>
+                        <div class="bf-box op">④AddRoundKey</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+                    <div style="width:20px"></div>
+                    <div class="bf-box iv" style="min-width:200px">Round 14 (Final): SubBytes + ShiftRows +
+                        AddRoundKey<br /><small>(tanpa MixColumns)</small></div>
+                    <div class="bf-arr">→</div>
+                    <div class="bf-box out">Ciphertext Block</div>
+                </div>
+            </div>
+
+            <h3>4.2 Empat Transformasi Per Round</h3>
+
+            <h4>① SubBytes — Substitusi Non-linear</h4>
+            <p>Setiap byte dalam state diganti menggunakan <strong>S-Box</strong> (Substitution Box) — tabel lookup 256
+                entri yang sudah ditetapkan di standar AES. Operasi ini bersifat non-linear, sehingga menyulitkan
+                analisis kriptografi.</p>
+            <ul>
+                <li>S-Box dibangun dari invers multiplicative di GF(2⁸) + transformasi affine</li>
+                <li>Contoh: byte <code>0x53</code> → S-Box → <code>0xED</code></li>
+                <li>Tujuan: menghilangkan korelasi antara kunci dan ciphertext (<em>confusion</em>)</li>
+            </ul>
+
+            <h4>② ShiftRows — Pergeseran Baris</h4>
+            <p>Setiap baris dalam state matrix digeser ke kiri secara siklik:</p>
+            <ul>
+                <li>Baris 0: tidak digeser (shift 0)</li>
+                <li>Baris 1: geser 1 byte ke kiri</li>
+                <li>Baris 2: geser 2 byte ke kiri</li>
+                <li>Baris 3: geser 3 byte ke kiri</li>
+            </ul>
+            <p>Tujuan: menyebarkan byte-byte dari kolom yang sama ke kolom berbeda (<em>diffusion</em>).</p>
+            <pre class="code-block"><span class="cm">// Sebelum ShiftRows:</span>
+[b0  b4  b8  b12]     <span class="cm">// baris 0 — tidak berubah</span>
+[b1  b5  b9  b13]  →  <span class="cm">// baris 1 — geser 1</span>
+[b2  b6  b10 b14]     <span class="cm">// baris 2 — geser 2</span>
+[b3  b7  b11 b15]     <span class="cm">// baris 3 — geser 3</span>
+
+<span class="cm">// Sesudah ShiftRows:</span>
+[b0  b4  b8  b12]
+[b5  b9  b13 b1 ]
+[b10 b14 b2  b6 ]
+[b15 b3  b7  b11]</pre>
+
+            <h4>③ MixColumns — Pencampuran Kolom</h4>
+            <p>Setiap kolom dari state matrix diperlakukan sebagai polinomial atas <strong>GF(2⁸)</strong> (Galois
+                Field) dan dikalikan dengan polinomial tetap <code>{03}x³+{01}x²+{01}x+{02}</code>. Ini menghasilkan
+                efek <em>diffusion</em> yang kuat — setiap byte output bergantung pada keempat byte input di kolom yang
+                sama.</p>
+            <div class="callout yellow">
+                <div class="callout-title">⚠️ MixColumns Tidak Ada di Round Terakhir</div>
+                Round ke-14 (final) tidak menggunakan MixColumns. Ini by-design agar dekripsi bisa menggunakan operasi
+                invers yang tersusun rapi.
+            </div>
+
+            <h4>④ AddRoundKey — XOR dengan Round Key</h4>
+            <p>State di-XOR byte per byte dengan <strong>round key</strong> yang dihasilkan dari Key Schedule. Ini
+                menambahkan ketergantungan kunci ke tiap round. Karena XOR invertible, dekripsi cukup XOR lagi dengan
+                round key yang sama.</p>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 5: MODE CBC
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="cbc">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+                5. Mode Operasi CBC (Cipher Block Chaining)
+                <span class="tag mode">CBC</span>
+            </h2>
+
+            <h3>5.1 Apa Itu Mode Operasi?</h3>
+            <p>AES dasar (<em>ECB — Electronic Codebook</em>) mengenkripsi tiap blok secara independen. Ini tidak aman
+                karena dua blok plaintext yang sama menghasilkan ciphertext yang sama. Mode operasi seperti CBC
+                mengatasi masalah ini.</p>
+
+            <h3>5.2 Cara Kerja CBC Enkripsi</h3>
+            <p>Pada CBC, setiap blok plaintext di-XOR dengan <strong>ciphertext blok sebelumnya</strong> sebelum
+                dienkripsi. Blok pertama di-XOR dengan <strong>IV (Initialization Vector)</strong>.</p>
+            <div class="block-flow" style="flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <div class="bf-box iv">IV (16 byte<br />random)</div>
+                    <div class="bf-arr">XOR</div>
+                    <div class="bf-box plain">Plaintext<br />Blok 1</div>
+                    <div class="bf-arr">→</div>
+                    <div class="bf-box op">AES<br />Encrypt</div>
+                    <div class="bf-arr">→</div>
+                    <div class="bf-box out">Cipher<br />Blok 1</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <div class="bf-box out" style="opacity:.7">Cipher<br />Blok 1</div>
+                    <div class="bf-arr">XOR</div>
+                    <div class="bf-box plain">Plaintext<br />Blok 2</div>
+                    <div class="bf-arr">→</div>
+                    <div class="bf-box op">AES<br />Encrypt</div>
+                    <div class="bf-arr">→</div>
+                    <div class="bf-box out">Cipher<br />Blok 2</div>
+                </div>
+                <p style="font-size:12.5px;color:var(--muted);margin:0">Dan seterusnya hingga blok terakhir...</p>
+            </div>
+
+            <h3>5.3 Cara Kerja CBC Dekripsi</h3>
+            <p>Dekripsi CBC bersifat <strong>parallelizable</strong> — setiap blok didekripsi terlebih dahulu oleh AES,
+                lalu di-XOR dengan ciphertext blok sebelumnya (atau IV untuk blok pertama).</p>
+
+            <h3>5.4 IV (Initialization Vector)</h3>
+            <p>IV adalah nilai acak 16 byte yang digunakan untuk blok pertama. IV bersifat:</p>
+            <ul>
+                <li><strong>Publik</strong> — tidak perlu dirahasiakan, boleh dikirim bersama ciphertext</li>
+                <li><strong>Unik</strong> — setiap enkripsi harus menggunakan IV baru yang berbeda</li>
+                <li><strong>Acak</strong> — harus menggunakan generator kriptografis (seperti
+                    <code>crypto.getRandomValues()</code>)
+                </li>
+            </ul>
+            <div class="callout green">
+                <div class="callout-title">✅ Format Output Dashboard</div>
+                Output enkripsi berformat: <code>Base64(IV[16 byte] + Ciphertext)</code>. IV dan ciphertext digabungkan,
+                lalu di-encode Base64. Saat dekripsi, 16 byte pertama diambil sebagai IV dan sisanya sebagai ciphertext.
+                Format ini <strong>identik</strong> dengan implementasi Dart (<code>api_encryption.dart</code>).
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 6: KEY SCHEDULE
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="key-schedule">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path
+                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                </svg>
+                6. Key Schedule &amp; Inverse Key Schedule
+            </h2>
+
+            <h3>6.1 Key Expansion</h3>
+            <p>AES-256 tidak langsung menggunakan kunci asal pada tiap round. Proses <strong>Key Schedule</strong>
+                menghasilkan <em>round keys</em> (sub-key) dari kunci 256-bit untuk setiap round:</p>
+            <ul>
+                <li>AES-256 menghasilkan <strong>15 round keys</strong> (masing-masing 128-bit) dari kunci 256-bit</li>
+                <li>Proses menggunakan S-Box, rotasi kata (RotWord), dan konstanta round (Rcon)</li>
+                <li>Tiap round key digunakan sekali dalam operasi AddRoundKey</li>
+            </ul>
+
+            <h3>6.2 Inverse Key Schedule (Mengapa Dekripsi Lebih Lambat?)</h3>
+            <p>Untuk dekripsi AES, diperlukan operasi <strong>InvMixColumns</strong> yang diaplikasikan ke round key
+                (kecuali round pertama dan terakhir). Ini disebut <em>Equivalent Inverse Cipher</em>.</p>
+            <p>InvMixColumns melibatkan perkalian di <strong>GF(2⁸)</strong> menggunakan konstanta berbeda dari
+                enkripsi. Operasi ini memerlukan komputasi tambahan:</p>
+
+            <table class="round-table">
+                <thead>
+                    <tr>
+                        <th>Operasi</th>
+                        <th>Enkripsi</th>
+                        <th>Dekripsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SubBytes</td>
+                        <td>S-Box lookup</td>
+                        <td>InvSubBytes (InvS-Box lookup)</td>
+                    </tr>
+                    <tr>
+                        <td>ShiftRows</td>
+                        <td>Geser kiri</td>
+                        <td>Geser kanan (invers)</td>
+                    </tr>
+                    <tr>
+                        <td>MixColumns</td>
+                        <td>Multiply {02,03,01,01}</td>
+                        <td>InvMixColumns {0E,0B,0D,09} — lebih berat!</td>
+                    </tr>
+                    <tr>
+                        <td>AddRoundKey</td>
+                        <td>XOR round key</td>
+                        <td>XOR round key + InvMixColumns(key)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout red">
+                <div class="callout-title">🔬 Implementasi di Dashboard</div>
+                Dashboard mengimplementasikan fungsi <code>_simIKS()</code> (Simulated Inverse Key Schedule) yang
+                mensimulasikan overhead komputasi GF(2⁸) dari InvMixColumns. Ini memastikan latensi dekripsi yang
+                terukur di dashboard <strong>sebanding</strong> dengan implementasi Dart, bukan hanya operasi Web Crypto
+                yang dioptimasi browser.
+            </div>
+
+            <h3>6.3 Jumlah Round Key per Varian</h3>
+            <table class="round-table">
+                <thead>
+                    <tr>
+                        <th>Varian</th>
+                        <th>Kunci Asal</th>
+                        <th>Round Keys</th>
+                        <th>Total Byte Round Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AES-128</td>
+                        <td>128-bit</td>
+                        <td>11</td>
+                        <td>176 byte</td>
+                    </tr>
+                    <tr>
+                        <td>AES-192</td>
+                        <td>192-bit</td>
+                        <td>13</td>
+                        <td>208 byte</td>
+                    </tr>
+                    <tr>
+                        <td style="color:var(--cyan)">AES-256</td>
+                        <td>256-bit</td>
+                        <td>15</td>
+                        <td>240 byte</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 7: FORMAT OUTPUT
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="output">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                </svg>
+                7. Format Output Enkripsi
+            </h2>
+
+            <h3>7.1 Struktur Output</h3>
+            <pre class="code-block"><span class="cm">// Output akhir adalah string Base64 dari:</span>
+[<span style="color:var(--violet)">IV: 16 byte random</span>] + [<span style="color:var(--cyan)">AES-CBC Ciphertext</span>]
+
+<span class="cm">// Contoh (dalam byte hex):</span>
+IV      :  A1 B2 C3 D4 E5 F6 07 18 29 3A 4B 5C 6D 7E 8F 90  (16 byte)
+Cipher  :  XX XX XX XX XX XX XX XX ... XX XX XX XX XX XX XX  (N×16 byte)
+Combined:  A1 B2 C3 ... 90 | XX XX XX ...
+Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base64)</pre>
+
+            <h3>7.2 Mengapa Ukuran Berbeda?</h3>
+            <ul>
+                <li><strong>Ciphertext:</strong> Selalu kelipatan 16 byte (karena blok AES + PKCS7 padding)</li>
+                <li><strong>Output (Base64):</strong> Ukuran = <code>⌈(16 + len(ciphertext)) / 3⌉ × 4</code> karakter
+                </li>
+                <li>Untuk data kecil (&lt;1 KB), output Base64 biasanya <strong>1.3–1.8× lebih besar</strong> dari input
+                </li>
+                <li>Ciphertext = selalu <strong>lebih besar</strong> dari plaintext (karena IV + padding + Base64)</li>
+            </ul>
+
+            <h3>7.3 Tentang "Klaim Dosen" (Ukuran 2×)</h3>
+            <div class="callout yellow">
+                <div class="callout-title">📚 Penjelasan Klaim Ukuran 2×</div>
+                <p>Klaim bahwa "ukuran file hasil dekripsi = 2× ukuran asli" <strong>tidak berlaku standar</strong>
+                    untuk AES-CBC. Secara teknis, dekripsi menghasilkan kembali plaintext asli (ukuran sama ± padding).
+                </p>
+                <p>Kemungkinan klaim tersebut merujuk pada skenario di mana file output menyimpan <em>plaintext +
+                        ciphertext sekaligus</em>, sehingga total menjadi ~2×. Dashboard mengecek rasio 1.8–2.2× dan
+                    menampilkan penjelasan pada setiap perbandingan ukuran.</p>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 8: KOMPATIBILITAS DART
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="dart">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                </svg>
+                8. Kompatibilitas dengan Implementasi Dart
+            </h2>
+
+            <h3>8.1 Pemetaan Fitur Dart → Web</h3>
+            <table class="round-table">
+                <thead>
+                    <tr>
+                        <th>Kode Dart</th>
+                        <th>Implementasi Web</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ApiEncryption.encrypt()</td>
+                        <td>aesEncrypt() — Web Crypto AES-CBC</td>
+                    </tr>
+                    <tr>
+                        <td>ApiEncryption.decrypt()</td>
+                        <td>aesDecrypt() + _simIKS()</td>
+                    </tr>
+                    <tr>
+                        <td>ApiEncryption.setKey()</td>
+                        <td>importKey() via SubtleCrypto.importKey()</td>
+                    </tr>
+                    <tr>
+                        <td>IV.fromSecureRandom(16)</td>
+                        <td>crypto.getRandomValues(Uint8Array(16))</td>
+                    </tr>
+                    <tr>
+                        <td>base64Encode(iv + cipher)</td>
+                        <td>btoa(String.fromCharCode(...iv, ...cipher))</td>
+                    </tr>
+                    <tr>
+                        <td>base64Decode(input)</td>
+                        <td>atob(input) → Uint8Array</td>
+                    </tr>
+                    <tr>
+                        <td>Stopwatch + elapsedMicroseconds</td>
+                        <td>performance.now() (presisi sub-ms)</td>
+                    </tr>
+                    <tr>
+                        <td>menuBatchTest()</td>
+                        <td>doBatch() — sama persis alurnya</td>
+                    </tr>
+                    <tr>
+                        <td>latency.log / data.log</td>
+                        <td>localStorage + export .log</td>
+                    </tr>
+                    <tr>
+                        <td>code/original, enkripsi, dekripsi</td>
+                        <td>Download file dari Blob URL</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>8.2 Format Kunci Identik</h3>
+            <p>Kunci yang digunakan adalah <strong>string UTF-8 32 karakter</strong>. Di Dart:
+                <code>Key.fromUtf8(_key)</code>. Di Web: <code>TextEncoder().encode(key)</code> → 32 byte →
+                <code>SubtleCrypto.importKey()</code>. Keduanya menghasilkan kunci 256-bit yang identik.
+            </p>
+
+            <pre class="code-block"><span class="cm">// Dart (api_encryption.dart)</span>
+<span class="kw">final</span> key = Key.<span class="fn">fromUtf8</span>(<span class="str">"SkadutaPresensi2025SecureKey1234"</span>);
+<span class="kw">final</span> iv  = IV.<span class="fn">fromSecureRandom</span>(<span class="num">16</span>);
+<span class="kw">final</span> combined = iv.bytes + encrypted.bytes;
+<span class="kw">return</span> <span class="fn">base64Encode</span>(combined);
+
+<span class="cm">// JavaScript (app.js)</span>
+<span class="kw">const</span> iv  = crypto.<span class="fn">getRandomValues</span>(<span class="kw">new</span> Uint8Array(<span class="num">16</span>));
+<span class="kw">const</span> enc = <span class="kw">await</span> crypto.subtle.<span class="fn">encrypt</span>({name:<span class="str">'AES-CBC'</span>,iv}, key, data);
+<span class="kw">const</span> out = <span class="kw">new</span> Uint8Array(<span class="num">16</span> + enc.byteLength);
+out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class="fn">set</span>(<span class="kw">new</span> Uint8Array(enc),<span class="num">16</span>);
+<span class="kw">return</span> <span class="fn">btoa</span>(String.<span class="fn">fromCharCode</span>(...out));</pre>
+
+            <div class="callout green">
+                <div class="callout-title">✅ Interoperabilitas</div>
+                Karena format kunci, IV, dan output identik, ciphertext yang dihasilkan Dart <strong>bisa didekripsi di
+                    Web</strong> dan sebaliknya, asalkan menggunakan kunci yang sama.
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 9: FAQ
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="faq">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                9. FAQ
+            </h2>
+
+            <h3>Apakah data saya aman?</h3>
+            <p>Ya. Dashboard ini berjalan <strong>sepenuhnya di browser</strong> (client-side). Tidak ada data yang
+                dikirim ke server manapun. Enkripsi/dekripsi dilakukan menggunakan <strong>Web Crypto API</strong>
+                bawaan browser yang diimplementasikan di level C++ native dan telah diaudit secara keamanan.</p>
+
+            <h3>Mengapa dekripsi sering lebih lambat dari enkripsi?</h3>
+            <p>Karena <strong>Inverse Key Schedule</strong> — dekripsi AES memerlukan transformasi
+                <em>InvMixColumns</em> terhadap round keys yang melibatkan perkalian polinomial di GF(2⁸). AES-256
+                memiliki 14 round, sehingga overhead ini signifikan. Dokumentasi teknis: NIST FIPS 197, Section 5.3.
+            </p>
+
+            <h3>Bagaimana cara deploy ke GitHub Pages?</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h4>Buat repository GitHub</h4>
+                        <p>Upload folder <code>web-dashboard/</code> ke repository baru atau yang sudah ada.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h4>Aktifkan GitHub Pages</h4>
+                        <p>Settings → Pages → Branch: <code>main</code>, Folder: <code>/web-dashboard</code> → Save.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h4>Akses URL</h4>
+                        <p>Dashboard tersedia di <code>https://[username].github.io/[repo-name]/</code> dalam beberapa
+                            menit.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Apakah localStorage aman untuk menyimpan data enkripsi?</h3>
+            <p>localStorage menyimpan data <strong>di browser lokal</strong> tanpa enkripsi tambahan. Data yang
+                tersimpan (log latensi, log data, statistik) <strong>tidak mengandung plaintext sensitif</strong> —
+                hanya metadata operasi. Jangan menyimpan plaintext atau kunci di localStorage secara manual.</p>
+
+            <h3>Berapa kapasitas localStorage?</h3>
+            <p>Umumnya <strong>5–10 MB per domain</strong>, bergantung browser dan pengaturan. Dashboard menampilkan
+                estimasi penggunaan vs kapasitas 5 MB di tab Penyimpanan Lokal.</p>
+
+            <h3>Apakah dashboard berfungsi offline?</h3>
+            <p>Ya, hampir sepenuhnya. Tanpa internet, Google Fonts tidak dimuat (font fallback ke system sans-serif),
+                namun semua fungsi enkripsi, dekripsi, log, dan penyimpanan tetap berjalan normal.</p>
+        </section>
+
+        <div
+            style="text-align:center;padding:32px 0;border-top:1px solid var(--border);color:var(--muted);font-size:13px;">
+            <p>Dokumentasi AES-256 Dashboard — Referensi: NIST FIPS 197, RFC 3602 (AES-CBC), PKCS #7</p>
+            <a href="index.html" style="color:var(--ind-l);text-decoration:none;font-weight:600;">← Kembali ke
+                Dashboard</a>
+        </div>
+
+    </div><!-- /doc-wrap -->
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Sync theme with main dashboard
+        const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } };
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            document.getElementById('iconMoon').style.display = t === 'dark' ? '' : 'none';
+            document.getElementById('iconSun').style.display = t === 'light' ? '' : 'none';
+            lsSet('aes-theme', t);
+        }
+        function toggleTheme() { const c = document.documentElement.getAttribute('data-theme') || 'dark'; applyTheme(c === 'dark' ? 'light' : 'dark'); }
+        applyTheme(lsGet('aes-theme') || 'dark');
+
+        // Active nav highlight on scroll
+        const secs = ['panduan', 'pengantar', 'struktur', 'round', 'cbc', 'key-schedule', 'output', 'dart', 'faq'];
+        const links = document.querySelectorAll('.doc-nav a');
+        window.addEventListener('scroll', () => {
+            let cur = 'panduan';
+            secs.forEach(id => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top < 120) cur = id; });
+            links.forEach(a => { a.classList.toggle('active', a.getAttribute('href') === '#' + cur); });
+        }, { passive: true });
+        links.forEach(a => a.addEventListener('click', e => {
+            e.preventDefault();
+            const el = document.querySelector(a.getAttribute('href'));
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }));
+    </script>
+</body>
+
+</html>
