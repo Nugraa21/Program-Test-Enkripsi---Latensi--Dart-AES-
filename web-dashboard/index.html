@@ -1119,9 +1119,25 @@
 
                         <div class="card" style="grid-column: span 2">
                             <div class="card-hd">
-                                <h3>Exploration & Advanced Settings</h3>
+                                <h3>UI & Personalization</h3>
                             </div>
                             <div class="settings-grid">
+                                <div class="fg">
+                                    <label class="check-label">
+                                        <input type="checkbox" id="set-compact" />
+                                        Mode Ringkas (Compact Layout)
+                                    </label>
+                                </div>
+                                <div class="fg">
+                                    <label>Warna Tema Aksen</label>
+                                    <div class="accent-picker">
+                                        <div class="accent-dot dot-indigo active" data-color="indigo"></div>
+                                        <div class="accent-dot dot-cyan" data-color="cyan"></div>
+                                        <div class="accent-dot dot-emerald" data-color="emerald"></div>
+                                        <div class="accent-dot dot-rose" data-color="rose"></div>
+                                        <div class="accent-dot dot-amber" data-color="amber"></div>
+                                    </div>
+                                </div>
                                 <div class="fg">
                                     <label class="check-label">
                                         <input type="checkbox" id="set-show-iv" checked />
@@ -1131,21 +1147,29 @@
                                 <div class="fg">
                                     <label class="check-label">
                                         <input type="checkbox" id="set-bit-view" />
-                                        Bit-View Mode (Tampilkan data dalam biner)
-                                    </label>
-                                </div>
-                                <div class="fg">
-                                    <label class="check-label">
-                                        <input type="checkbox" id="set-detailed-log" checked />
-                                        Log Aktivitas Lengkap ke Modal Riwayat
+                                        Bit-View Mode (Data dalam format Biner)
                                     </label>
                                 </div>
                                 <div class="fg">
                                     <label class="check-label">
                                         <input type="checkbox" id="set-perf-mode" />
-                                        High Performance Mode (Optimasi UI)
+                                        High Performance (Optimasi Animasi)
                                     </label>
                                 </div>
+                                <div class="fg">
+                                    <label class="check-label">
+                                        <input type="checkbox" id="set-reduced-motion" />
+                                        Kurangi Animasi (Reduced Motion)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-hd">
+                                <h3>Engine & Security</h3>
+                            </div>
+                            <div class="settings-grid" style="grid-template-columns: 1fr;">
                                 <div class="fg">
                                     <label class="check-label">
                                         <input type="checkbox" id="set-auto-copy" />
@@ -1155,14 +1179,100 @@
                                 <div class="fg">
                                     <label class="check-label">
                                         <input type="checkbox" id="set-strict-key" checked />
-                                        Validasi Kunci Ketat (Wajib 32 Karakter)
+                                        Validasi Kunci Ketat (32 Karakter)
                                     </label>
                                 </div>
+                                <div class="fg">
+                                    <label class="check-label">
+                                        <input type="checkbox" id="set-detailed-log" checked />
+                                        Log Forensik Lengkap (Internal Audit)
+                                    </label>
+                                </div>
+                                <div class="fg">
+                                    <label>Format Output Default</label>
+                                    <select id="set-encoding" class="input-ctrl"
+                                        style="margin-top:5px; height:36px; padding:0 10px;">
+                                        <option value="base64">Base64 (Web Standard)</option>
+                                        <option value="hex">Hexadecimal (Hex String)</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="info-note">
-                                <p>Mode eksplorasi membantu Anda memahami bagaimana AES-256 memproses data di balik
-                                    layar.</p>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-hd">
+                                <h3>Data & Sync</h3>
                             </div>
+                            <div class="settings-grid" style="grid-template-columns: 1fr;">
+                                <div class="fg">
+                                    <label class="check-label">
+                                        <input type="checkbox" id="set-auto-save" checked />
+                                        Auto-Save State ke LocalStorage
+                                    </label>
+                                </div>
+                                <div class="fg" style="margin-top:10px;">
+                                    <button class="btn btn-outline" style="width:100%; justify-content:center;"
+                                        onclick="exportConfig()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            width="16">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="7 10 12 15 17 10" />
+                                            <line x1="12" y1="15" x2="12" y2="3" />
+                                        </svg>
+                                        Ekspor Konfigurasi (.json)
+                                    </button>
+                                </div>
+                                <div class="fg" style="margin-top:10px;">
+                                    <button class="btn btn-outline" style="width:100%; justify-content:center;"
+                                        onclick="document.getElementById('importFile').click()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            width="16">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            <polyline points="17 8 12 3 7 8" />
+                                            <line x1="12" y1="3" x2="12" y2="15" />
+                                        </svg>
+                                        Impor Konfigurasi
+                                    </button>
+                                    <input type="file" id="importFile" hidden accept=".json"
+                                        onchange="importConfig(event)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card" style="grid-column: span 2">
+                            <div class="card-hd">
+                                <h3>💡 Pintasan Keyboard (Keyboard Shortcuts)</h3>
+                            </div>
+                            <div class="settings-grid">
+                                <div class="fg">
+                                    <div class="shortcut-item"
+                                        style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+                                        <span>Cari / Terapkan Kunci</span>
+                                        <code style="background:var(--ind-g); color:var(--ind-l);">Enter</code>
+                                    </div>
+                                    <div class="shortcut-item"
+                                        style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+                                        <span>Navigasi Antar Tab</span>
+                                        <code style="background:var(--hover);">1 - 9</code>
+                                    </div>
+                                </div>
+                                <div class="fg">
+                                    <div class="shortcut-item"
+                                        style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+                                        <span>Toggle Sidebar</span>
+                                        <code style="background:var(--hover);">Esc</code>
+                                    </div>
+                                    <div class="shortcut-item"
+                                        style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+                                        <span>Ganti Tema</span>
+                                        <code style="background:var(--hover);">T</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-note">
+                            <p>Mode eksplorasi membantu Anda memahami bagaimana AES-256 memproses data di balik
+                                layar secara transparan.</p>
                         </div>
                     </div>
                 </div>

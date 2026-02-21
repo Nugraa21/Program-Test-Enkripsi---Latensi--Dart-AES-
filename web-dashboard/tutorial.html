@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES-256 Dashboard v2.0 — Master Guide</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --ind: #6366f1;
+            --ind-l: #818cf8;
+            --text: #f8fafc;
+            --sub: #94a3b8;
+            --r: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .slide-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.15;
+            filter: blur(40px);
+            background: radial-gradient(circle at 50% 50%, var(--ind), transparent 70%);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        h1 span {
+            color: var(--ind-l);
+        }
+
+        p {
+            font-size: 1.25rem;
+            color: var(--sub);
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 50px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .f-card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: var(--r);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .f-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--ind);
+        }
+
+        .f-card svg {
+            color: var(--ind-l);
+            margin-bottom: 20px;
+        }
+
+        .f-card h3 {
+            margin-bottom: 12px;
+            font-size: 1.4rem;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .ctrl-btn {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--ind);
+            border-color: var(--ind);
+        }
+
+        .progress {
+            font-size: 0.9rem;
+            color: var(--sub);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            background: var(--ind);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .step-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: left;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .step-line {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            background: var(--ind);
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slide-container" id="container">
+        <!-- Slide 1: Welcome -->
+        <div class="slide">
+            <div class="slide-bg"></div>
+            <div class="badge">Version 2.0 Complete</div>
+            <h1>The New <span>AES-256</span> Lab</h1>
+            <p>Selamat datang di versi paling lengkap dari Dashboard AES-256. Panduan ini akan menunjukkan fitur-fitur
+                baru yang membuat lab ini menjadi instrumen riset profesional.</p>
+        </div>
+
+        <!-- Slide 2: Konfigurasi Hub -->
+        <div class="slide">
+            <h1>Pusat <span>Personalisasi</span></h1>
+            <p>Tab Pengaturan kini adalah hub kendali penuh. Anda bisa menyesuaikan segalanya mulai dari estetika hingga
+                mesin enkripsi.</p>
+            <div class="feature-grid">
+                <div class="f-card">
+                    <h3>Accent Colors</h3>
+                    <p>Pilih identitas visual Anda: Indigo, Cyan, Emerald, Rose, atau Amber.</p>
+                </div>
+                <div class="f-card">
+                    <h3>Compact Mode</h3>
+                    <p>Optimasi layout untuk data padat. Padding dan font akan mengecil secara cerdas.</p>
+                </div>
+                <div class="f-card">
+                    <h3>Reduced Motion</h3>
+                    <p>Efisiensi maksimal! Matikan animasi bagi yang menginginkan performa instan.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Cryptography Master -->
+        <div class="slide">
+            <h1>Eksplorasi <span>Mendalam</span></h1>
+            <p>Gali lebih dalam ke dalam struktur data AES dengan alat analisis baru kami.</p>
+            <div class="feature-grid">
+                <div class="f-card">
+                    <h3>Bit-View Mode</h3>
+                    <p>Lihat data dalam format biner (0s & 1s) untuk memahami level terendah bitwise.</p>
+                </div>
+                <div class="f-card">
+                    <h3>Hex/Base64</h3>
+                    <p>Beralih format output secara instan sesuai kebutuhan format standar Anda.</p>
+                </div>
+                <div class="f-card">
+                    <h3>Log Forensik</h3>
+                    <p>Aktifkan audit internal untuk memantau performa mesin AES secara detail.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Power User Features -->
+        <div class="slide">
+            <h1>Alur Kerja <span>Efisien</span></h1>
+            <p>Kelola data dan navigasi Anda secepat kilat (Lightning Fast).</p>
+            <div class="feature-grid">
+                <div class="f-card">
+                    <h3>Ekspor/Impor</h3>
+                    <p>Pindahkan konfigurasi and statistik Anda antar perangkat via file JSON.</p>
+                </div>
+                <div class="f-card">
+                    <h3>Shortcut Keyboard</h3>
+                    <p>Navigasi tab (1-9), toggle tema (T), dan sidebar (Esc) tanpa mouse.</p>
+                </div>
+                <div class="f-card">
+                    <h3>Storage Manager</h3>
+                    <p>Pantau penggunaan localStorage browser termasuk konfigurasi settings Anda.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Ready to Explore -->
+        <div class="slide">
+            <div class="slide-bg" style="opacity: 0.3;"></div>
+            <h1><span>Siap</span> Bereksperimen?</h1>
+            <p>AES-256 Dashboard v2.0 siap menemani riset kriptografi Anda. Semuanya sudah lengkap, fungsional, dan
+                profesional.</p>
+            <div style="margin-top: 30px;">
+                <button class="ctrl-btn" style="width: 250px; font-weight: 700;"
+                    onclick="window.location.href='index.html'">KEMBALI KE DASHBOARD</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="ctrl-btn" onclick="move(-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+        </button>
+        <div class="progress" id="progress">1 / 5</div>
+        <button class="ctrl-btn" onclick="move(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20">
+                <polyline points="9 18 15 12 9 6" />
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        let current = 0;
+        const total = 5;
+        const container = document.getElementById('container');
+        const prog = document.getElementById('progress');
+
+        function move(dir) {
+            current = Math.min(Math.max(current + dir, 0), total - 1);
+            container.style.transform = `translateX(-${current * 100}vw)`;
+            prog.textContent = `${current + 1} / ${total}`;
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight' || e.key === ' ') move(1);
+            if (e.key === 'ArrowLeft') move(-1);
+        });
+    </script>
+</body>
+
+</html>

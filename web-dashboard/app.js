@@ -38,7 +38,12 @@ const S = {
         detailedLog: true,
         perfMode: false,
         autoCopy: false,
-        strictKey: true
+        strictKey: true,
+        compact: false,
+        accent: 'indigo',
+        encoding: 'base64',
+        autoSave: true,
+        reducedMotion: false
     }
 };
 
@@ -142,24 +147,50 @@ async function loadKeyFile(e) {
     } catch { toast('JSON tidak valid!', 'er'); }
 }
 
-// ─── AES ENCRYPT / DECRYPT ────────────────────────
 async function aesEncrypt(plain) {
     if (!S.cryptoKey) throw new Error('Kunci belum diset!');
     const iv = crypto.getRandomValues(new Uint8Array(16));
     const enc = await crypto.subtle.encrypt({ name: 'AES-CBC', iv }, S.cryptoKey, new TextEncoder().encode(plain));
     const out = new Uint8Array(16 + enc.byteLength);
     out.set(iv, 0); out.set(new Uint8Array(enc), 16);
-    return btoa(String.fromCharCode(...out));
+    return out; // Return raw bytes
+}
+
+async function aesDecrypt(bytes) {
+    if (!S.cryptoKey) throw new Error('Kunci belum diset!');
+    if (bytes.length < 17) throw new Error('Data terlalu pendek!');
+    const iv = bytes.slice(0, 16), cipher = bytes.slice(16);
+    _simIKS(S.keyStr, iv);
+    return new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, S.cryptoKey, cipher));
+}
+
+function toEncoding(bytes) {
+    if (S.settings.encoding === 'hex') {
+        return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    return btoa(String.fromCharCode(...bytes));
+}
+
+function fromEncoding(str) {
+    if (S.settings.encoding === 'hex') {
+        const matches = str.match(/.{1,2}/g);
+        if (!matches) throw new Error('Format Hex tidak valid!');
+        return new Uint8Array(matches.map(byte => parseInt(byte, 16)));
+    }
+    return Uint8Array.from(atob(str), c => c.charCodeAt(0));
 }
 // ─── SETTINGS HANDLERS ────────────────────────────
 function initSettingsUI() {
     const map = {
         'set-show-iv': 'showIv',
-        'set-bit-view': 'bitView',
         'set-detailed-log': 'detailedLog',
         'set-perf-mode': 'perfMode',
         'set-auto-copy': 'autoCopy',
-        'set-strict-key': 'strictKey'
+        'set-strict-key': 'strictKey',
+        'set-compact': 'compact',
+        'set-auto-save': 'autoSave',
+        'set-bit-view': 'bitView',
+        'set-reduced-motion': 'reducedMotion'
     };
     Object.keys(map).forEach(id => {
         const el = document.getElementById(id);
@@ -167,11 +198,72 @@ function initSettingsUI() {
         el.checked = S.settings[map[id]];
         el.onchange = () => {
             S.settings[map[id]] = el.checked;
-            saveState();
+            if (id === 'set-compact') document.body.classList.toggle('compact', el.checked);
+            if (id === 'set-reduced-motion') document.body.classList.toggle('reduced-motion', el.checked);
+            if (S.settings.autoSave) saveState();
             toast('Pengaturan diperbarui.', 'in');
             if (id === 'set-perf-mode') redrawChart();
         };
     });
+
+    const enc = document.getElementById('set-encoding');
+    if (enc) {
+        enc.value = S.settings.encoding;
+        enc.onchange = () => { S.settings.encoding = enc.value; if (S.settings.autoSave) saveState(); toast('Encoding diubah.', 'in'); };
+    }
+
+    // Accent Dots
+    document.querySelectorAll('.accent-dot').forEach(dot => {
+        dot.classList.toggle('active', dot.dataset.color === S.settings.accent);
+        dot.onclick = () => {
+            S.settings.accent = dot.dataset.color;
+            applyAccent(S.settings.accent);
+            document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
+            dot.classList.add('active');
+            if (S.settings.autoSave) saveState();
+        };
+    });
+
+    // Initial state applying
+    if (S.settings.compact) document.body.classList.add('compact');
+    if (S.settings.reducedMotion) document.body.classList.add('reduced-motion');
+    applyAccent(S.settings.accent);
+}
+
+function applyAccent(color) {
+    const colors = {
+        indigo: { ind: '#6366f1', l: '#818cf8', g: 'rgba(99, 102, 241, .18)' },
+        cyan: { ind: '#0891b2', l: '#22d3ee', g: 'rgba(34, 211, 238, .18)' },
+        emerald: { ind: '#059669', l: '#10b981', g: 'rgba(16, 185, 129, .18)' },
+        rose: { ind: '#e11d48', l: '#fb7185', g: 'rgba(244, 63, 94, .18)' },
+        amber: { ind: '#d97706', l: '#f59e0b', g: 'rgba(245, 158, 11, .18)' }
+    };
+    const c = colors[color] || colors.indigo;
+    const r = document.documentElement;
+    r.style.setProperty('--ind', c.ind);
+    r.style.setProperty('--ind-l', c.l);
+    r.style.setProperty('--ind-g', c.g);
+}
+
+function exportConfig() {
+    const data = JSON.stringify(S.settings, null, 2);
+    const b = new Blob([data], { type: 'application/json' });
+    const u = URL.createObjectURL(b);
+    const a = document.createElement('a');
+    a.href = u; a.download = 'aes_config_backup.json';
+    a.click(); URL.revokeObjectURL(u);
+    toast('Konfigurasi diekspor.', 'ok');
+}
+
+async function importConfig(e) {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+        const j = JSON.parse(await f.text());
+        S.settings = { ...S.settings, ...j };
+        initSettingsUI();
+        saveState();
+        toast('Konfigurasi diimpor!', 'ok');
+    } catch { toast('File JSON tidak valid.', 'er'); }
 }
 
 function _simIKS(keyStr, ivBytes) {
@@ -183,15 +275,11 @@ function _simIKS(keyStr, ivBytes) {
     }
     return cs;
 }
-async function aesDecrypt(b64) {
-    if (!S.cryptoKey) throw new Error('Kunci belum diset!');
-    let bin; try { bin = atob(b64); } catch { throw new Error('Bukan Base64 yang valid!'); }
-    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
-    if (bytes.length < 17) throw new Error('Data terlalu pendek!');
-    const iv = bytes.slice(0, 16), cipher = bytes.slice(16);
-    _simIKS(S.keyStr, iv);
-    return new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, S.cryptoKey, cipher));
+
+function toBinary(bytes) {
+    return Array.from(bytes).map(b => b.toString(2).padStart(8, '0')).join(' ');
 }
+// DELETED OLD aesDecrypt as it is replaced above
 
 // ─── MENU 1: ENKRIPSI MANUAL ──────────────────────
 async function doEncrypt() {
@@ -200,11 +288,11 @@ async function doEncrypt() {
     if (!S.cryptoKey) { toast('Set kunci dahulu!', 'er'); showTab('settings'); return; }
     setBusy('btnEnc', true);
     try {
-        const t0 = performance.now(), cipher = await aesEncrypt(text), latEnc = performance.now() - t0;
-        const t1 = performance.now(); await aesDecrypt(cipher); const latDec = performance.now() - t1;
+        const t0 = performance.now(), bytes = await aesEncrypt(text), cipher = toEncoding(bytes), latEnc = performance.now() - t0;
+        const t1 = performance.now(); await aesDecrypt(bytes); const latDec = performance.now() - t1;
         S.lastCipher = cipher;
         const oSz = byteLen(text), eSz = byteLen(cipher), ratio = eSz / oSz, spd = (oSz / 1024) / (latEnc / 1000);
-        document.getElementById('encOut').value = cipher;
+        document.getElementById('encOut').value = S.settings.bitView ? toBinary(bytes) : cipher;
         showRG('encResultGrid', {
             encLat: latEnc.toFixed(3) + ' ms', encSpeed: spd.toFixed(2) + ' KB/s',
             encOrigSz: fmt(oSz), encEncSz: fmt(eSz), encRatio: ratio.toFixed(3) + 'x', encStatus: 'Berhasil'
@@ -212,7 +300,7 @@ async function doEncrypt() {
         showSizeTable('encSizeTable', 'encSizeNote', 'encSizeCard', oSz, eSz, oSz, latEnc, latDec);
         addLatLog('ENCRYPT_MANUAL', latEnc, text.substring(0, 60));
         addDataLog({ type: 'ENCRYPT_MANUAL', origSz: oSz, encSz: eSz, decSz: oSz, latEnc, isMatch: true, speedEnc: spd });
-        addActivity('enc', 'Enkripsi Manual', fmt(oSz) + ' → ' + fmt(eSz), latEnc, { plain: text, cipher, sizeIn: oSz, sizeOut: eSz });
+        addActivity('enc', 'Enkripsi Manual', fmt(oSz) + ' → ' + fmt(eSz), latEnc, { plain: text, cipher, sizeIn: oSz, sizeOut: eSz, cipherBytes: bytes });
         S.totalEnc++; S.encHist.push(latEnc); S.decHist.push(latDec);
         updateStats(); updateSysOps(); saveState(); redrawChart();
         toast('Enkripsi berhasil.', 'ok');
@@ -231,10 +319,12 @@ async function doDecrypt() {
     if (!S.cryptoKey) { toast('Set kunci dahulu!', 'er'); showTab('settings'); return; }
     setBusy('btnDec', true);
     try {
-        const eSz = byteLen(cipher), t0 = performance.now(), plain = await aesDecrypt(cipher), latDec = performance.now() - t0;
+        const eSz = byteLen(cipher), t0 = performance.now();
+        const bytes = fromEncoding(cipher);
+        const plain = await aesDecrypt(bytes), latDec = performance.now() - t0;
         const dSz = byteLen(plain), spd = (eSz / 1024) / (latDec / 1000);
-        const bts = Uint8Array.from(atob(cipher), c => c.charCodeAt(0)), iks = _simIKS(S.keyStr, bts.slice(0, 16));
-        document.getElementById('decOut').value = plain;
+        const iks = _simIKS(S.keyStr, bytes.slice(0, 16));
+        document.getElementById('decOut').value = S.settings.bitView ? toBinary(new TextEncoder().encode(plain)) : plain;
         showRG('decResultGrid', {
             decLat: latDec.toFixed(3) + ' ms', decSpeed: spd.toFixed(2) + ' KB/s',
             decEncSz: fmt(eSz), decDecSz: fmt(dSz), decVerify: 'Berhasil', decIKS: 'cs=0x' + iks.toString(16).padStart(2, '0')
@@ -243,7 +333,7 @@ async function doDecrypt() {
         showSizeTable('decSizeTable', 'decSizeNote', 'decSizeCard', eSz, eSz, dSz, null, latDec);
         addLatLog('DECRYPT_MANUAL', latDec, fmt(eSz) + ' → ' + fmt(dSz));
         addDataLog({ type: 'DECRYPT_MANUAL', encSz: eSz, decSz: dSz, latDec, speedDec: spd });
-        addActivity('dec', 'Dekripsi Manual', fmt(eSz) + ' → ' + fmt(dSz), latDec, { plain, cipher, sizeIn: eSz, sizeOut: dSz });
+        addActivity('dec', 'Dekripsi Manual', fmt(eSz) + ' → ' + fmt(dSz), latDec, { plain, cipher, sizeIn: eSz, sizeOut: dSz, plainBytes: new TextEncoder().encode(plain) });
         S.totalDec++; S.decHist.push(latDec);
         updateStats(); updateSysOps(); saveState(); redrawChart();
         toast('Dekripsi berhasil.', 'ok');
@@ -269,9 +359,10 @@ async function doBatch() {
     setBusy('btnBatch', true);
     try {
         const oSz = byteLen(raw), ts = nowTs();
-        const t0 = performance.now(), encFull = await aesEncrypt(raw), latEnc = performance.now() - t0;
+        const t0 = performance.now(), bytesFull = await aesEncrypt(raw), latEnc = performance.now() - t0;
+        const encFull = toEncoding(bytesFull);
         setLoadText('Mendekripsi kembali...');
-        const t1 = performance.now(), decFull = await aesDecrypt(encFull), latDec = performance.now() - t1;
+        const t1 = performance.now(), decFull = await aesDecrypt(bytesFull), latDec = performance.now() - t1;
         const eSz = byteLen(encFull), dSz = byteLen(decFull), isMatch = raw === decFull;
         const sE = (oSz / 1024) / (latEnc / 1000), sD = (eSz / 1024) / (latDec / 1000);
 
@@ -279,10 +370,11 @@ async function doBatch() {
         const items = []; let sumE = 0, sumD = 0;
         for (let i = 0; i < arr.length; i++) {
             const item = typeof arr[i] === 'string' ? arr[i] : JSON.stringify(arr[i]);
-            const tE = performance.now(), enc = await aesEncrypt(item), lE = performance.now() - tE;
-            const tD = performance.now(), dec = await aesDecrypt(enc), lD = performance.now() - tD;
+            const tE = performance.now(), bE = await aesEncrypt(item), lE = performance.now() - tE;
+            const encStr = toEncoding(bE);
+            const tD = performance.now(), dec = await aesDecrypt(bE), lD = performance.now() - tD;
             sumE += lE; sumD += lD;
-            items.push({ idx: i + 1, orig: item, lE, lD, ok: item === dec, oSz: byteLen(item), eSz: byteLen(enc), dSz: byteLen(dec) });
+            items.push({ idx: i + 1, orig: item, lE, lD, ok: item === dec, oSz: byteLen(item), eSz: byteLen(encStr), dSz: byteLen(dec), origBytes: new TextEncoder().encode(item), encBytes: bE, decBytes: new TextEncoder().encode(dec) });
             addLatLog('BATCH_ENC', lE, 'Item #' + (i + 1) + ': ' + item.substring(0, 50));
             addLatLog('BATCH_DEC', lD, 'Item #' + (i + 1));
         }
@@ -291,7 +383,7 @@ async function doBatch() {
         addLatLog('JSON_ENCRYPT', latEnc, 'data.json full (' + fmt(oSz) + ')');
         addLatLog('JSON_DECRYPT', latDec, 'data.json full');
         addDataLog({ type: 'JSON_BATCH_TEST', origSz: oSz, encSz: eSz, decSz: dSz, latEnc, latDec, isMatch, speedEnc: sE, speedDec: sD });
-        addActivity('batch', 'Batch Test JSON (' + arr.length + ' items)', fmt(oSz) + ' → enc:' + fmt(eSz), latEnc + latDec);
+        addActivity('batch', 'Batch Test JSON (' + arr.length + ' items)', fmt(oSz) + ' → enc:' + fmt(eSz), latEnc + latDec, { plain: raw, cipher: encFull, sizeIn: oSz, sizeOut: eSz, plainBytes: new TextEncoder().encode(raw), cipherBytes: bytesFull, decBytes: new TextEncoder().encode(decFull) });
         S.totalEnc++; S.totalDec++; S.encHist.push(latEnc); S.decHist.push(latDec);
         updateStats(); updateSysOps(); saveState(); redrawChart(); renderLatLog(); renderDataLog();
 
@@ -440,6 +532,7 @@ const STORAGE_KEYS = [
     { key: LS.LAST_C, label: 'Cipher Terakhir', icon: 'enc' },
     { key: LS.BATCH_IN, label: 'Data JSON Input', icon: 'dec' },
     { key: LS.THEME, label: 'Preferensi Tema', icon: 'batch' },
+    { key: LS.SETTINGS, label: 'Konfigurasi Dashboard', icon: 'settings' },
 ];
 
 function refreshStorageView() {
@@ -521,7 +614,10 @@ function addActivity(type, title, sub, lat, extra = {}) {
         cipher: extra.cipher || 'N/A',
         sizeIn: extra.sizeIn || 0,
         sizeOut: extra.sizeOut || 0,
-        key: S.keyStr
+        key: S.keyStr,
+        plainBytes: extra.plainBytes,
+        cipherBytes: extra.cipherBytes,
+        decBytes: extra.decBytes
     };
     S.activities.unshift(activity);
     if (S.activities.length > 50) S.activities.pop();
@@ -615,8 +711,12 @@ function showModal(idx) {
     document.getElementById('mLat').textContent = a.lat.toFixed(3) + ' ms';
     document.getElementById('mSizeIn').textContent = fmtB(a.sizeIn);
     document.getElementById('mSizeOut').textContent = fmtB(a.sizeOut);
-    document.getElementById('mPlain').value = a.plain;
-    document.getElementById('mCipher').value = a.cipher;
+
+    const plainDisplay = S.settings.bitView && a.plainBytes ? toBinary(a.plainBytes) : a.plain;
+    const cipherDisplay = S.settings.bitView && a.cipherBytes ? toBinary(a.cipherBytes) : a.cipher;
+
+    document.getElementById('mPlain').value = plainDisplay;
+    document.getElementById('mCipher').value = cipherDisplay;
     document.getElementById('modalIcon').className = 'modal-icon ' + a.type;
     document.getElementById('modalIcon').innerHTML = ICONS[a.type];
 
@@ -745,6 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load persisted data
     loadState();
+    initSettingsUI();
 
     // Restore chart/stats UI
     updateStats(); updateSysOps();
@@ -767,6 +868,19 @@ document.addEventListener('DOMContentLoaded', () => {
     dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
     dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
     dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f && f.name.endsWith('.json')) loadKeyFile({ target: { files: [f] } }); else toast('Hanya file .json!', 'er'); });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const k = e.key.toLowerCase();
+        if (k === 't') toggleTheme();
+        if (k === 'escape') closeSidebar();
+        if (k >= '1' && k <= '9') {
+            const tabs = ['dashboard', 'enkripsi', 'dekripsi', 'batch', 'file', 'log-latensi', 'log-data', 'settings', 'storage'];
+            const idx = parseInt(k) - 1;
+            if (tabs[idx]) showTab(tabs[idx]);
+        }
+    });
 
     // Auto-load default key
     document.getElementById('keyInput').value = DEFAULT_KEY; updateKeyBar();

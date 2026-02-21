@@ -62,6 +62,86 @@
     color-scheme: light;
 }
 
+/* ──── COMPACT MODE ──── */
+body.compact {
+    --sw: 200px;
+    --th: 48px;
+    --r: 8px;
+}
+
+body.compact {
+    font-size: 13px;
+}
+
+body.compact .card {
+    padding: 15px;
+}
+
+body.compact .sidebar-item {
+    padding: 10px 15px;
+}
+
+body.compact .stat-card {
+    padding: 10px;
+}
+
+body.compact .info-table th,
+body.compact .info-table td {
+    padding: 8px 10px;
+}
+
+/* ──── ACCENT PICKER ──── */
+.accent-picker {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.accent-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+}
+
+.accent-dot:hover {
+    transform: scale(1.15);
+}
+
+.accent-dot.active {
+    border-color: var(--text);
+    box-shadow: 0 0 0 2px var(--bg);
+}
+
+.dot-indigo {
+    background: #6366f1;
+}
+
+.dot-cyan {
+    background: #22d3ee;
+}
+
+.dot-emerald {
+    background: #10b981;
+}
+
+.dot-rose {
+    background: #f43f5e;
+}
+
+.dot-amber {
+    background: #f59e0b;
+}
+
+/* ──── REDUCED MOTION ──── */
+body.reduced-motion * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+}
+
 html,
 body {
     height: 100%;
@@ -2482,16 +2562,45 @@ code {
         width: 100%;
     }
 }
+
 @media (max-width: 360px) {
-    .stat-row { grid-template-columns: 1fr; }
-    .topbar-title { font-size: 13px; }
-    .stat-card { padding: 10px; }
+    .stat-row {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar-title {
+        font-size: 13px;
+    }
+
+    .stat-card {
+        padding: 10px;
+    }
 }
 
 @media (max-width: 550px) {
-    .settings-grid { grid-template-columns: 1fr; gap: 12px; }
-    .storages-row { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
-    .del-all-row { flex-direction: column; gap: 10px; }
-    .del-all-row .btn { width: 100%; justify-content: center; }
-    .storage-total { flex-direction: column; gap: 8px; align-items: flex-start; }
+    .settings-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .storages-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+    }
+
+    .del-all-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .del-all-row .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .storage-total {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
 }
