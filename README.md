@@ -423,3 +423,18 @@ Test program/
 | **Satuan latensi** | Milidetik (ms) = `elapsedMicroseconds / 1000.0` |
 | **Throughput** | KB/s = `(ukuranFile / 1024) / (latensi / 1000)` |
 | **Library enkripsi** | `encrypt: ^5.0.3` |
+
+
+## Catatan pengujian 
+
+```json
+[
+    "{\"username\": \"testuser\", \"password\": \"password123\", \"device_id\": \"d8a928b2-92b2-4d29-9b29-2b29d8a928b2\"}",
+    "{\"username\": \"barunugraha\", \"nama_lengkap\": \"Baru Nugraha\", \"password\": \"rahasia\", \"nip_nisn\": \"12345678\", \"role\": \"user\", \"status\": \"Karyawan\"}",
+    "{\"id\": \"42\", \"reset_device\": true}",
+    "{\"userId\": \"101\", \"jenis\": \"Masuk\", \"keterangan\": \"Tepat Waktu\", \"informasi\": \"WFO\", \"dokumenBase64\": \"(base64_dokumen_dummy)\", \"latitude\": \"-7.79558\", \"longitude\": \"110.36949\", \"base64Image\": \"(base64_image_dummy_data_panjang_sekali_untuk_test_latency_lebih_berat)\"}",
+    "{\"id\": \"505\", \"status\": \"Hadir\"}",
+    "{\"id\": \"99\"}",
+    "{\"id\": \"7\", \"username\": \"admin_edit\", \"nama_lengkap\": \"Admin Sistem\", \"role\": \"admin\"}"
+]
+```
