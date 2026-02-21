@@ -16,6 +16,7 @@ const LS = {
     LAST_C: 'aes-lastCipher',
     BATCH_IN: 'aes-batchIn',
     ACTIVITIES: 'aes-activities',
+    SETTINGS: 'aes-settings',
 };
 
 // ─── STATE ────────────────────────────────────────
@@ -31,6 +32,14 @@ const S = {
     totalDec: 0,
     logFilter: 'all',
     activities: [],
+    settings: {
+        showIv: true,
+        bitView: false,
+        detailedLog: true,
+        perfMode: false,
+        autoCopy: false,
+        strictKey: true
+    }
 };
 
 // ─── LOCALSTORAGE HELPERS ─────────────────────────
@@ -45,6 +54,7 @@ function saveState() {
     lsSet(LS.STATS, { encHist: S.encHist.slice(-50), decHist: S.decHist.slice(-50), totalEnc: S.totalEnc, totalDec: S.totalDec });
     lsSet(LS.LAST_C, S.lastCipher);
     lsSet(LS.ACTIVITIES, S.activities.slice(0, 50));
+    lsSet(LS.SETTINGS, S.settings);
 }
 
 function loadState() {
@@ -57,8 +67,14 @@ function loadState() {
     S.totalDec = st.totalDec || 0;
     S.lastCipher = lsGet(LS.LAST_C) || '';
     S.activities = lsGet(LS.ACTIVITIES) || [];
+    const sett = lsGet(LS.SETTINGS);
+    if (sett) S.settings = { ...S.settings, ...sett };
+
     const bi = lsGet(LS.BATCH_IN);
     if (bi) { const el = document.getElementById('batchIn'); if (el) el.value = bi; }
+
+    // Apply UI settings
+    initSettingsUI();
 }
 
 // ─── THEME ────────────────────────────────────────
@@ -83,7 +99,8 @@ async function importKey(k) {
 }
 async function applyKey() {
     const v = document.getElementById('keyInput').value.trim();
-    if (v.length !== 32) { toast('Kunci harus tepat 32 karakter!', 'er'); return; }
+    if (S.settings.strictKey && v.length !== 32) { toast('Kunci harus tepat 32 karakter!', 'er'); return; }
+    if (!S.settings.strictKey && v.length === 0) { toast('Kunci tidak boleh kosong!', 'er'); return; }
     try {
         S.cryptoKey = await importKey(v); S.keyStr = v;
         setKeyStatus(true); toast('Kunci berhasil diterapkan.', 'ok');
@@ -134,6 +151,29 @@ async function aesEncrypt(plain) {
     out.set(iv, 0); out.set(new Uint8Array(enc), 16);
     return btoa(String.fromCharCode(...out));
 }
+// ─── SETTINGS HANDLERS ────────────────────────────
+function initSettingsUI() {
+    const map = {
+        'set-show-iv': 'showIv',
+        'set-bit-view': 'bitView',
+        'set-detailed-log': 'detailedLog',
+        'set-perf-mode': 'perfMode',
+        'set-auto-copy': 'autoCopy',
+        'set-strict-key': 'strictKey'
+    };
+    Object.keys(map).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.checked = S.settings[map[id]];
+        el.onchange = () => {
+            S.settings[map[id]] = el.checked;
+            saveState();
+            toast('Pengaturan diperbarui.', 'in');
+            if (id === 'set-perf-mode') redrawChart();
+        };
+    });
+}
+
 function _simIKS(keyStr, ivBytes) {
     const kb = new TextEncoder().encode(keyStr); let cs = 0;
     for (let r = 1; r <= 14; r++) for (let b = 0; b < kb.length; b++) {
@@ -176,6 +216,10 @@ async function doEncrypt() {
         S.totalEnc++; S.encHist.push(latEnc); S.decHist.push(latDec);
         updateStats(); updateSysOps(); saveState(); redrawChart();
         toast('Enkripsi berhasil.', 'ok');
+        if (S.settings.autoCopy) {
+            navigator.clipboard.writeText(cipher);
+            toast('Ciphertext otomatis disalin!', 'in');
+        }
     } catch (e) { toast('Gagal: ' + e.message, 'er'); }
     finally { setBusy('btnEnc', false); }
 }

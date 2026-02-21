@@ -2421,4 +2421,77 @@ code {
     .modal-body textarea {
         height: 120px;
     }
+
+    /* ─── DEEP MOBILE REFINEMENTS ─── */
+    .topbar-algo {
+        display: none;
+    }
+
+    .topbar-right {
+        gap: 8px;
+    }
+
+    .stat-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .stat-icon-wrap {
+        width: 32px;
+        height: 32px;
+    }
+
+    .stat-icon-wrap svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+
+    .stat-val {
+        font-size: 14px;
+    }
+
+    .info-table,
+    .cmp-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .bi-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px !important;
+    }
+
+    .add-data-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .add-data-row .btn {
+        width: 100%;
+    }
+}
+@media (max-width: 360px) {
+    .stat-row { grid-template-columns: 1fr; }
+    .topbar-title { font-size: 13px; }
+    .stat-card { padding: 10px; }
+}
+
+@media (max-width: 550px) {
+    .settings-grid { grid-template-columns: 1fr; gap: 12px; }
+    .storages-row { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
+    .del-all-row { flex-direction: column; gap: 10px; }
+    .del-all-row .btn { width: 100%; justify-content: center; }
+    .storage-total { flex-direction: column; gap: 8px; align-items: flex-start; }
 }
