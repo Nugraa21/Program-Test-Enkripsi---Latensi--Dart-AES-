@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AES-256 — Test Latensi Enkripsi</title>
+    <meta name="description" content="Dashboard interaktif uji latensi enkripsi AES-256-CBC" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+            </div>
+            <div>
+                <div class="brand-title">AES-256</div>
+                <div class="brand-sub">Encryption Lab</div>
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav-label">Operasi</div>
+            <button class="nav-btn active" id="nav-dashboard" onclick="showTab('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Dashboard
+            </button>
+            <button class="nav-btn" id="nav-enkripsi" onclick="showTab('enkripsi')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                </svg>
+                Enkripsi Manual
+            </button>
+            <button class="nav-btn" id="nav-dekripsi" onclick="showTab('dekripsi')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22L2 17l10-5 10 5-10 5z" />
+                    <path d="M2 7l10-5 10 5" />
+                    <path d="M2 12l10-5 10 5" />
+                </svg>
+                Dekripsi Manual
+            </button>
+            <button class="nav-btn" id="nav-batch" onclick="showTab('batch')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                Batch Test JSON
+            </button>
+
+            <div class="nav-label" style="margin-top:18px">Log & Riwayat</div>
+            <button class="nav-btn" id="nav-log-latensi" onclick="showTab('log-latensi')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+                Log Latensi
+            </button>
+            <button class="nav-btn" id="nav-log-data" onclick="showTab('log-data')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                Log Data
+            </button>
+
+            <div class="nav-label" style="margin-top:18px">Sistem</div>
+            <button class="nav-btn" id="nav-settings" onclick="showTab('settings')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+                Pengaturan Kunci
+            </button>
+            <button class="nav-btn" id="nav-storage" onclick="showTab('storage')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" />
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                </svg>
+                Penyimpanan Lokal
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="key-indicator" id="keyIndicator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="8" cy="15" r="4" />
+                    <path d="M12 15h8m-4-4v4" />
+                </svg>
+                <span id="keyIndicatorText">Kunci belum diset</span>
+            </div>
+            <div class="storage-mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                    <ellipse cx="12" cy="5" rx="9" ry="3" />
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                </svg>
+                <div class="storage-mini-bar">
+                    <div class="storage-mini-fill" id="storageMiniBar"></div>
+                </div>
+                <span id="storageMiniText">—</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══════════ LAYOUT + TOPBAR ═══════════ -->
+    <div class="layout">
+        <header class="topbar">
+            <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+            <span class="topbar-title" id="topbarTitle">Dashboard</span>
+            <div class="topbar-right">
+                <span class="topbar-algo">AES-256-CBC</span>
+                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle tema gelap/terang">
+                    <!-- Dark icon (moon) -->
+                    <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                    <!-- Light icon (sun) — hidden by default -->
+                    <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="display:none">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                </button>
+                <div class="topbar-key-dot" id="topbarKeyDot"></div>
+            </div>
+        </header>
+
+        <!-- ═══════════ MAIN CONTENT ═══════════ -->
+        <main class="main">
+
+            <!-- ─── DASHBOARD ─── -->
+            <div class="tab active" id="tab-dashboard">
+                <div class="page-head">
+                    <h1>Dashboard</h1>
+                    <p>Ringkasan performa enkripsi AES-256-CBC secara real-time</p>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-card c-indigo">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Total Operasi</div>
+                            <div class="stat-val" id="stTotal">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card c-cyan">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Total Dekripsi</div>
+                            <div class="stat-val" id="stTotalDec">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card c-violet">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Rata-rata Enkripsi</div>
+                            <div class="stat-val" id="stAvgEnc">— ms</div>
+                        </div>
+                    </div>
+                    <div class="stat-card c-orange">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Rata-rata Dekripsi</div>
+                            <div class="stat-val" id="stAvgDec">— ms</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dash-grid">
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Grafik Latensi</h3>
+                            <span class="live-badge"><svg viewBox="0 0 10 10" width="8" height="8">
+                                    <circle cx="5" cy="5" r="5" fill="currentColor" />
+                                </svg>Live</span>
+                        </div>
+                        <div class="chart-wrap">
+                            <canvas id="mainChart"></canvas>
+                            <div class="chart-ph" id="chartPh">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="44"
+                                    height="44">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                                </svg>
+                                <p>Belum ada data. Jalankan enkripsi untuk melihat grafik.</p>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <span class="leg-dot" style="background:#6366f1"></span><span>Enkripsi (ms)</span>
+                            <span class="leg-dot" style="background:#22d3ee;margin-left:16px"></span><span>Dekripsi
+                                (ms)</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Info AES-256-CBC</h3>
+                        </div>
+                        <table class="info-table">
+                            <tr>
+                                <td>Algoritma</td>
+                                <td class="mono">AES-256-CBC</td>
+                            </tr>
+                            <tr>
+                                <td>Ukuran Kunci</td>
+                                <td class="mono">256-bit (32 byte)</td>
+                            </tr>
+                            <tr>
+                                <td>Block Size</td>
+                                <td class="mono">128-bit (16 byte)</td>
+                            </tr>
+                            <tr>
+                                <td>IV</td>
+                                <td class="mono">Random 16 byte</td>
+                            </tr>
+                            <tr>
+                                <td>Jumlah Round</td>
+                                <td class="mono">14 round</td>
+                            </tr>
+                            <tr>
+                                <td>Output Format</td>
+                                <td class="mono">Base64 (IV+Cipher)</td>
+                            </tr>
+                        </table>
+                        <div class="info-note">
+                            <div class="info-note-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                    height="14">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                Mengapa dekripsi lebih lambat?
+                            </div>
+                            <p>Dekripsi AES memerlukan <em>Inverse Key Schedule</em> — setiap round key dikenai
+                                <em>InvMixColumns</em> (GF 2⁸). AES-256 = 14 iterasi overhead ini (NIST FIPS 197).</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:20px">
+                    <div class="card-hd">
+                        <h3>Aktivitas Terbaru</h3>
+                        <button class="btn-link" onclick="clearActivity()">Hapus riwayat</button>
+                    </div>
+                    <div id="activityFeed">
+                        <div class="feed-empty">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36"
+                                height="36">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <p>Belum ada aktivitas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── ENKRIPSI MANUAL ─── -->
+            <div class="tab" id="tab-enkripsi">
+                <div class="page-head">
+                    <h1>Enkripsi Manual</h1>
+                    <p>Menu 1 — Enkripsi teks/JSON menggunakan AES-256-CBC</p>
+                </div>
+                <div class="two-col">
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Input Plaintext</h3>
+                        </div>
+                        <div class="fg">
+                            <label>Teks / JSON yang akan dienkripsi</label>
+                            <textarea id="encIn" rows="7"
+                                placeholder='{"username":"testuser","password":"password123"}'></textarea>
+                            <div class="fg-meta"><span id="encInSize">0 bytes</span><span>UTF-8 → AES-CBC →
+                                    Base64</span></div>
+                        </div>
+                        <button class="btn btn-primary w100" id="btnEnc" onclick="doEncrypt()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <rect x="3" y="11" width="18" height="11" rx="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                            </svg>
+                            Enkripsi Sekarang
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Hasil Enkripsi</h3>
+                            <button class="icon-btn" onclick="copyEl('encOut')" title="Salin">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"
+                                    height="15">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" />
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg>
+                            </button>
+                        </div>
+                        <textarea id="encOut" class="mono out-area" readonly rows="7"
+                            placeholder="Ciphertext Base64 akan muncul di sini..."></textarea>
+                        <div class="result-grid" id="encResultGrid" style="display:none">
+                            <div class="rg-item">
+                                <div class="rg-label">Latensi</div>
+                                <div class="rg-val" id="encLat">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Kec. Enkripsi</div>
+                                <div class="rg-val" id="encSpeed">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Ukuran Input</div>
+                                <div class="rg-val" id="encOrigSz">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Ukuran Output</div>
+                                <div class="rg-val" id="encEncSz">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Rasio</div>
+                                <div class="rg-val" id="encRatio">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Status</div>
+                                <div class="rg-val good" id="encStatus">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="encSizeCard" style="display:none;margin-top:16px">
+                    <div class="card-hd">
+                        <h3>Perbandingan Ukuran File</h3>
+                    </div>
+                    <table class="cmp-table" id="encSizeTable"></table>
+                    <div class="cmp-note" id="encSizeNote"></div>
+                </div>
+            </div>
+
+            <!-- ─── DEKRIPSI MANUAL ─── -->
+            <div class="tab" id="tab-dekripsi">
+                <div class="page-head">
+                    <h1>Dekripsi Manual</h1>
+                    <p>Menu 2 — Dekripsi ciphertext Base64 kembali ke plaintext</p>
+                </div>
+                <div class="two-col">
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Input Ciphertext</h3>
+                        </div>
+                        <div class="fg">
+                            <label>Ciphertext Base64 (format: IV[16 byte] + Ciphertext)</label>
+                            <textarea id="decIn" class="mono" rows="7"
+                                placeholder="Tempelkan ciphertext Base64 di sini..."></textarea>
+                            <div class="fg-meta"><span id="decInSize">0 bytes</span><span>Base64 → AES-CBC
+                                    Decrypt</span></div>
+                        </div>
+                        <div class="row-gap">
+                            <button class="btn btn-secondary flex1" id="btnDec" onclick="doDecrypt()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                    height="16">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+                                </svg>
+                                Dekripsi Sekarang
+                            </button>
+                            <button class="btn btn-outline" onclick="pasteLastCipher()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                    height="16">
+                                    <path
+                                        d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                                    <rect x="8" y="2" width="8" height="4" rx="1" />
+                                </svg>
+                                Paste Terakhir
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Hasil Dekripsi</h3>
+                            <button class="icon-btn" onclick="copyEl('decOut')" title="Salin">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"
+                                    height="15">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" />
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg>
+                            </button>
+                        </div>
+                        <textarea id="decOut" class="out-area" readonly rows="7"
+                            placeholder="Plaintext hasil dekripsi akan muncul di sini..."></textarea>
+                        <div class="result-grid" id="decResultGrid" style="display:none">
+                            <div class="rg-item">
+                                <div class="rg-label">Latensi</div>
+                                <div class="rg-val" id="decLat">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Kec. Dekripsi</div>
+                                <div class="rg-val" id="decSpeed">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Ukuran Input</div>
+                                <div class="rg-val" id="decEncSz">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Ukuran Output</div>
+                                <div class="rg-val" id="decDecSz">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Verifikasi</div>
+                                <div class="rg-val" id="decVerify">—</div>
+                            </div>
+                            <div class="rg-item">
+                                <div class="rg-label">Inv. Key Sched.</div>
+                                <div class="rg-val" id="decIKS">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="decSizeCard" style="display:none;margin-top:16px">
+                    <div class="card-hd">
+                        <h3>Perbandingan Ukuran File</h3>
+                    </div>
+                    <table class="cmp-table" id="decSizeTable"></table>
+                    <div class="cmp-note" id="decSizeNote"></div>
+                </div>
+            </div>
+
+            <!-- ─── BATCH TEST JSON ─── -->
+            <div class="tab" id="tab-batch">
+                <div class="page-head">
+                    <h1>Batch Test JSON</h1>
+                    <p>Menu 3 — Enkripsi seluruh array JSON + laporan lengkap per-item</p>
+                </div>
+                <div class="card">
+                    <div class="card-hd">
+                        <h3>Data JSON (data.json)</h3>
+                        <div class="row-gap">
+                            <button class="btn btn-outline btn-sm" onclick="loadSample()">Load Sample</button>
+                            <button class="btn btn-outline btn-sm" onclick="clearBatch()">Clear</button>
+                        </div>
+                    </div>
+                    <div class="fg">
+                        <label>Array JSON — tiap elemen ditest secara individual</label>
+                        <textarea id="batchIn" class="mono" rows="9" placeholder='["teks1", "teks2", ...]'></textarea>
+                        <div class="fg-meta"><span id="batchSize">0 bytes</span><span id="batchCount">0 item</span>
+                        </div>
+                    </div>
+                    <div class="add-data-row">
+                        <div class="fg" style="flex:1;margin-bottom:0">
+                            <label>Tambah item baru ke array</label>
+                            <input type="text" id="newDataInput"
+                                placeholder='{"username":"user_baru","role":"admin"}' />
+                        </div>
+                        <button class="btn btn-outline" onclick="addDataItem()" style="align-self:flex-end">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"
+                                height="15">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Tambah
+                        </button>
+                    </div>
+                    <button class="btn btn-primary w100" style="margin-top:14px" id="btnBatch" onclick="doBatch()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                            height="16">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                        Jalankan Batch Test
+                    </button>
+                </div>
+                <div id="batchResultArea" style="display:none;margin-top:20px">
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Hasil Test Enkripsi data.json</h3>
+                        </div>
+                        <div class="result-grid" id="batchSummaryGrid"></div>
+                    </div>
+                    <div class="card" style="margin-top:16px">
+                        <div class="card-hd">
+                            <h3>Perbandingan Ukuran File</h3>
+                        </div>
+                        <table class="cmp-table" id="batchSizeTable"></table>
+                        <div class="cmp-note" id="batchSizeNote"></div>
+                    </div>
+                    <div class="card" style="margin-top:16px" id="batchItemCard">
+                        <div class="card-hd">
+                            <h3>Test Per-Item</h3>
+                            <span class="badge-count" id="batchItemBadge">0 items</span>
+                        </div>
+                        <div id="batchItemList"></div>
+                    </div>
+                    <div class="card" style="margin-top:16px" id="batchAvgCard">
+                        <div class="card-hd">
+                            <h3>Rata-rata Latensi Per-Item</h3>
+                        </div>
+                        <div class="result-grid" id="batchAvgGrid"></div>
+                    </div>
+                    <div class="card" style="margin-top:16px">
+                        <div class="card-hd">
+                            <h3>File Output</h3>
+                            <span style="font-size:12px;color:var(--muted)">Setara code/original, code/enkripsi,
+                                code/dekripsi</span>
+                        </div>
+                        <div class="file-dl-row" id="batchFiles"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── LOG LATENSI ─── -->
+            <div class="tab" id="tab-log-latensi">
+                <div class="page-head">
+                    <h1>Log Latensi</h1>
+                    <p>Menu 4 — Riwayat latensi semua operasi (latency.log)</p>
+                </div>
+                <div class="card">
+                    <div class="card-hd">
+                        <h3>Latency Log <span class="badge-count" id="latLogCount">0 entri</span></h3>
+                        <div class="row-gap">
+                            <button class="btn btn-outline btn-sm" onclick="exportLatLog()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                    height="14">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Export latency.log
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="clearLatLog()">Hapus</button>
+                        </div>
+                    </div>
+                    <div class="log-filters">
+                        <button class="filter-btn active" onclick="filterLog('all',this)">Semua</button>
+                        <button class="filter-btn" onclick="filterLog('ENCRYPT',this)">Enkripsi</button>
+                        <button class="filter-btn" onclick="filterLog('DECRYPT',this)">Dekripsi</button>
+                        <button class="filter-btn" onclick="filterLog('BATCH',this)">Batch</button>
+                        <button class="filter-btn" onclick="filterLog('AVG',this)">Rata-rata</button>
+                        <button class="filter-btn" onclick="filterLog('JSON',this)">JSON</button>
+                    </div>
+                    <div class="log-terminal" id="latLogTerminal">
+                        <div class="log-ph">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36"
+                                height="36">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                            <p>Belum ada data log latensi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── LOG DATA ─── -->
+            <div class="tab" id="tab-log-data">
+                <div class="page-head">
+                    <h1>Log Data</h1>
+                    <p>Menu 5 — Catatan lengkap ukuran & kecepatan setiap operasi (data.log)</p>
+                </div>
+                <div class="card">
+                    <div class="card-hd">
+                        <h3>Data Log <span class="badge-count" id="dataLogCount">0 entri</span></h3>
+                        <div class="row-gap">
+                            <button class="btn btn-outline btn-sm" onclick="exportDataLog()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                    height="14">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Export data.log
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="clearDataLog()">Hapus</button>
+                        </div>
+                    </div>
+                    <div id="dataLogList">
+                        <div class="feed-empty">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36"
+                                height="36">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <p>Belum ada log data.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── PENGATURAN KUNCI ─── -->
+            <div class="tab" id="tab-settings">
+                <div class="page-head">
+                    <h1>Pengaturan Kunci</h1>
+                    <p>Konfigurasi kunci AES-256 — harus tepat 32 karakter (256-bit)</p>
+                </div>
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Set Kunci Manual</h3>
+                        </div>
+                        <div class="fg">
+                            <label>Encryption Key (tepat 32 karakter)</label>
+                            <div class="key-input-row">
+                                <input type="password" id="keyInput" class="mono"
+                                    placeholder="Masukkan 32-karakter AES-256 key..." maxlength="32" />
+                                <button class="icon-btn" onclick="toggleKeyVis()">
+                                    <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" width="16" height="16">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                    <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" width="16" height="16" style="display:none">
+                                        <path
+                                            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                        <line x1="1" y1="1" x2="23" y2="23" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="key-bar-wrap">
+                                <div class="key-bar">
+                                    <div id="keyBarFill" class="key-bar-fill"></div>
+                                </div>
+                                <span id="keyBarText">0 / 32</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="applyKey()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                                height="16">
+                                <path
+                                    d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                            </svg>
+                            Terapkan Kunci
+                        </button>
+                        <div class="divider"></div>
+                        <button class="btn btn-outline w100" onclick="useDefault()">Gunakan Kunci Default (key.json
+                            project)</button>
+                        <div class="key-default-preview">SkadutaPresensi2025SecureKey1234</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Upload key.json</h3>
+                        </div>
+                        <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Upload file
+                            <code>key.json</code> dari project Dart.</p>
+                        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileKeyIn').click()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40"
+                                height="40">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            <p>Drag & drop atau klik untuk memilih <strong>key.json</strong></p>
+                        </div>
+                        <input type="file" id="fileKeyIn" accept=".json" style="display:none"
+                            onchange="loadKeyFile(event)" />
+                    </div>
+                    <div class="card">
+                        <div class="card-hd">
+                            <h3>Status Sistem</h3>
+                        </div>
+                        <table class="info-table">
+                            <tr>
+                                <td>Kunci Enkripsi</td>
+                                <td id="sysCryptoKey" class="status-cell">Belum diset</td>
+                            </tr>
+                            <tr>
+                                <td>WebCrypto API</td>
+                                <td class="status-cell ok">Tersedia</td>
+                            </tr>
+                            <tr>
+                                <td>Algoritma</td>
+                                <td class="status-cell ok">AES-256-CBC</td>
+                            </tr>
+                            <tr>
+                                <td>Mode</td>
+                                <td class="mono">CBC (Cipher Block Chaining)</td>
+                            </tr>
+                            <tr>
+                                <td>Padding</td>
+                                <td class="mono">PKCS7</td>
+                            </tr>
+                            <tr>
+                                <td>Total Operasi</td>
+                                <td id="sysTotalOps">0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── PENYIMPANAN LOKAL ─── -->
+            <div class="tab" id="tab-storage">
+                <div class="page-head">
+                    <h1>Penyimpanan Lokal</h1>
+                    <p>Manajemen data yang tersimpan di browser (localStorage) — bisa dihapus kapan saja</p>
+                </div>
+
+                <!-- Overview -->
+                <div class="stat-row" style="grid-template-columns:1fr 1fr 1fr 1fr">
+                    <div class="stat-card c-indigo">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Log Latensi</div>
+                            <div class="stat-val" id="sz-latLog">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card c-cyan">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Log Data</div>
+                            <div class="stat-val" id="sz-dataLog">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card c-violet">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Riwayat Chart</div>
+                            <div class="stat-val" id="sz-chartHist">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card c-orange">
+                        <div class="stat-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                            </svg></div>
+                        <div>
+                            <div class="stat-label">Total Tersimpan</div>
+                            <div class="stat-val" id="sz-total">0 KB</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card storage-card">
+                    <div class="card-hd">
+                        <h3>Penggunaan Storage Browser</h3>
+                        <button class="btn btn-outline btn-sm" onclick="refreshStorageView()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13"
+                                height="13">
+                                <polyline points="23 4 23 10 17 10" />
+                                <path d="M20.49 15a9 9 0 1 1-.09-9.02" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div class="storage-bar-wrap">
+                        <label id="storageBarLabel">Menghitung...</label>
+                        <div class="storage-bar">
+                            <div class="storage-bar-fill" id="storageBarFill"></div>
+                        </div>
+                    </div>
+
+                    <div class="storage-items" id="storageItems">
+                        <!-- Dynamic -->
+                    </div>
+
+                    <div class="storage-total">
+                        <span>Total data tersimpan: <strong id="storageTotalText">Menghitung...</strong></span>
+                        <span id="storageEntryCount" style="color:var(--muted)"></span>
+                    </div>
+
+                    <div class="del-all-row">
+                        <button class="btn btn-danger flex1" onclick="clearSpecific('aes-latLog')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"
+                                height="15">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14H6L5 6" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                            </svg>
+                            Hapus Log Latensi
+                        </button>
+                        <button class="btn btn-danger flex1" onclick="clearSpecific('aes-dataLog')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"
+                                height="15">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14H6L5 6" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                            </svg>
+                            Hapus Log Data
+                        </button>
+                        <button class="btn btn-danger flex1" onclick="clearSpecific('aes-stats')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15"
+                                height="15">
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14H6L5 6" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                            </svg>
+                            Hapus Statistik
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <button class="btn btn-danger w100" onclick="clearAllStorage()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+                            height="16">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14H6L5 6" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                        Hapus Semua Data Aplikasi (Reset Total)
+                    </button>
+                    <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">
+                        Data disimpan hanya di browser ini. Tidak dikirim ke server. Aman dan privat.
+                    </p>
+                </div>
+
+                <div class="card" style="margin-top:18px">
+                    <div class="card-hd">
+                        <h3>Tentang Penyimpanan Lokal</h3>
+                    </div>
+                    <table class="info-table">
+                        <tr>
+                            <td>Mekanisme</td>
+                            <td class="mono">localStorage (Web Storage API)</td>
+                        </tr>
+                        <tr>
+                            <td>Kapasitas Typical</td>
+                            <td class="mono">5–10 MB per domain</td>
+                        </tr>
+                        <tr>
+                            <td>Persistensi</td>
+                            <td>Tersimpan sampai dihapus manual</td>
+                        </tr>
+                        <tr>
+                            <td>Privasi</td>
+                            <td class="status-cell ok">Hanya di browser ini, tidak dikirim ke server</td>
+                        </tr>
+                        <tr>
+                            <td>GitHub Pages</td>
+                            <td class="status-cell ok">Berfungsi penuh (client-side only)</td>
+                        </tr>
+                    </table>
+                    <div class="info-note" style="margin-top:14px">
+                        <div class="info-note-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"
+                                height="14">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                            Tentang GitHub Pages
+                        </div>
+                        <p>Dashboard ini adalah aplikasi <em>client-side only</em> — tidak memerlukan backend server.
+                            Upload folder <code>web-dashboard/</code> ke repository GitHub, aktifkan GitHub Pages
+                            (Settings → Pages → Branch: main, folder: /web-dashboard), dan dashboard langsung bisa
+                            diakses publik.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div><!-- /layout -->
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- LOADING -->
+    <div class="loading-cover" id="loadCover" style="display:none">
+        <div class="spin"></div>
+        <div class="spin-text" id="loadText">Memproses...</div>
+    </div>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
