@@ -2389,4 +2389,36 @@ code {
         width: 300px;
         height: 300px;
     }
+
+    .main {
+        padding: 12px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    textarea {
+        font-size: 14px !important;
+        line-height: 1.6;
+        padding: 14px !important;
+    }
+
+    .btn,
+    .l-btn {
+        min-height: 48px;
+        /* Better for thumbs */
+    }
+
+    .nav-btn {
+        padding: 12px 14px;
+    }
+
+    .topbar {
+        padding: 0 12px;
+    }
+
+    .modal-body textarea {
+        height: 120px;
+    }
 }
