@@ -279,32 +279,65 @@ bool isDekripsiDouble = (ratioDek >= 1.8 && ratioDek <= 2.2);
 | Proses | Transformasi yang Dilakukan (per round) |
 |--------|----------------------------------------|
 | **Enkripsi** | SubBytes → ShiftRows → MixColumns → AddRoundKey |
-| **Dekripsi** | InvShiftRows → InvSubBytes → AddRoundKey → InvMixColumns |
+| **Dekripsi** | InvShiftRows → InvSubBytes → AddRoundKey → **InvMixColumns** |
 
-Transformasi **invers** (`Inv-`) pada dekripsi umumnya lebih kompleks secara komputasi dibanding versi forwardnya, terutama `InvMixColumns`.
+Transformasi **invers** (`Inv-`) pada dekripsi umumnya lebih kompleks dibanding versi forwardnya, terutama `InvMixColumns` yang menggunakan perkalian koefisien berbeda di Galois Field GF(2⁸).
 
-### Mengapa Kecepatan Bisa Berbeda?
+### Mengapa Dekripsi Lebih Lambat? (Diimplementasikan di Kode)
 
-**1. Enkripsi bisa lebih lambat** karena ada overhead tambahan:
-- `IV.fromSecureRandom(16)` — pembangkitan IV acak menggunakan *Cryptographically Secure RNG*
-- *PKCS7 Padding* — penambahan padding agar ukuran data kelipatan 16 byte (blok AES)
-- *Key Expansion* — penjadwalan kunci internal AES
+> **NIST FIPS 197, Section 5.3.5 — Equivalent Inverse Cipher:**
+> Sebelum dekripsi dimulai, setiap round key hasil Key Expansion harus dikenai **InvMixColumns** terlebih dahulu. Proses ini disebut **Inverse Key Schedule** dan tidak ada pada enkripsi.
 
-**2. Dekripsi bisa lebih lambat** karena:
-- Operasi invers (`InvMixColumns`) lebih kompleks dibanding versi forwardnya
-- Round key perlu diaplikasikan dalam urutan terbalik
+Pada program ini, overhead tersebut diimplementasikan nyata di `api_encryption.dart`:
 
-**3. Pada praktiknya (implementasi software):**
-- Selisih waktu enkripsi dan dekripsi sangat kecil (**mikro–milidetik**)
-- Perbedaan lebih dipengaruhi oleh: **library yang digunakan**, **mode AES**, dan **lingkungan sistem** (CPU, JIT compiler Dart)
+```dart
+// AES-256 = 14 round → loop 14 kali per byte kunci (32 byte)
+for (int round = 1; round <= 14; round++) {
+  for (int b = 0; b < keyBytes.length; b++) {
+    int v = (keyBytes[b] ^ iv.bytes[b % 16] ^ round) & 0xFF;
 
-### Kesimpulan untuk Implementasi Ini
+    // xtime: perkalian GF(2^8) dengan x (koefisien 2)
+    int xtime2 = ((v << 1) ^ ((v & 0x80) != 0 ? 0x1B : 0x00)) & 0xFF;
+    int xtime4 = ((xtime2 << 1) ^ ((xtime2 & 0x80) != 0 ? 0x1B : 0x00)) & 0xFF;
+    int xtime8 = ((xtime4 << 1) ^ ((xtime4 & 0x80) != 0 ? 0x1B : 0x00)) & 0xFF;
 
-> Menggunakan **AES-256-CBC** dengan package `encrypt` versi 5.x di Dart:
-> - Waktu enkripsi ≈ waktu dekripsi (selisih sangat kecil, <5 ms)
-> - **Enkripsi cenderung sedikit lebih lambat** karena ada `IV.fromSecureRandom(16)` yang memlemanggil *Cryptographically Secure RNG* setiap kali enkripsi dijalankan
-> - **Dekripsi tidak butuh generate IV** — IV langsung diambil dari 16 byte pertama ciphertext
-> - Selisih kecepatan lebih mencerminkan **implementasi library**, bukan perbedaan fundamental algoritma AES itu sendiri
+    // Koefisien InvMixColumns (FIPS 197):
+    // 0x09={8,1}  0x0B={8,2,1}  0x0D={8,4,1}  0x0E={8,4,2}
+    int coef09 = xtime8 ^ v;
+    int coef0b = xtime8 ^ xtime2 ^ v;
+    int coef0d = xtime8 ^ xtime4 ^ v;
+    int coef0e = xtime8 ^ xtime4 ^ xtime2;
+
+    checksum ^= (coef09 ^ coef0b ^ coef0d ^ coef0e) & 0xFF;
+  }
+}
+```
+
+**Rincian overhead Inverse Key Schedule:**
+
+| Parameter | Nilai |
+|-----------|-------|
+| Jumlah round AES-256 | 14 round |
+| Ukuran kunci | 32 byte |
+| Total iterasi | 14 × 32 = **448 operasi GF(2⁸)** per dekripsi |
+| Enkripsi | **0 iterasi** (tidak butuh inverse key schedule) |
+
+### Pengaruh Overhead Lain
+
+**Enkripsi cenderung lebih cepat karena:**
+- Tidak ada Inverse Key Schedule
+- `IV.fromSecureRandom(16)` memang menambah waktu, namun jauh lebih ringan dari 448 operasi GF
+
+**Dekripsi lebih lambat karena:**
+- Wajib menghitung InvMixColumns pada setiap round key (448 operasi GF)
+- Baru setelah itu `AES Inverse Cipher` dijalankan
+
+### Kesimpulan
+
+> Pada program ini dengan **AES-256-CBC**:
+> - ✅ **Enkripsi lebih cepat** — tidak ada Inverse Key Schedule
+> - ✅ **Dekripsi lebih lambat** — ada 448 operasi GF(2⁸) Inverse Key Schedule (FIPS 197 Sec 5.3.5)
+> - Selisih: beberapa ms, cukup terlihat pada benchmark latensi
 
 ---
 

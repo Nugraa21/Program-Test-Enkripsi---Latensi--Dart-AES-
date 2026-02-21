@@ -1,0 +1,26 @@
+==================================================
+[2026-02-21 13:34:25] [JSON_BATCH_TEST]
+In  : file:code/original/data_json_20260221_133425.json
+Out : enc:code/enkripsi/data_json_20260221_133425.enc.json | dec:code/dekripsi/data_json_20260221_133425.dec.json
+─── Ukuran File ───────────────────────────────
+  Asli     : 847 bytes
+  Enkripsi : 1.13 KB (1152 bytes) (1.360x asli)
+  Dekripsi : 847 bytes (1.000x asli)
+─── Latensi & Kecepatan ───────────────────────
+  Enkripsi : 18.400 ms  |  44.95 KB/s
+  Dekripsi : 3.142 ms  |  358.05 KB/s
+  Total    : 21.542 ms
+==================================================
+==================================================
+[2026-02-21 13:38:52] [JSON_BATCH_TEST]
+In  : file:code/original/data_json_20260221_133852.json
+Out : enc:code/enkripsi/data_json_20260221_133852.enc.json | dec:code/dekripsi/data_json_20260221_133852.dec.json
+─── Ukuran File ───────────────────────────────
+  Asli     : 128 bytes
+  Enkripsi : 216 bytes (1.688x asli)
+  Dekripsi : 128 bytes (1.000x asli)
+─── Latensi & Kecepatan ───────────────────────
+  Enkripsi : 16.988 ms  |  7.36 KB/s
+  Dekripsi : 3.289 ms  |  64.13 KB/s
+  Total    : 20.277 ms
+==================================================
