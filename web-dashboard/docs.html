@@ -873,6 +873,74 @@
                Or just accept it on all pages but ensure it doesn't overlap. 
                Adding padding-bottom to body is the key. */
 
+            /* ─── DOCS MOBILE RESPONSIVENESS ─── */
+            @media (max-width: 768px) {
+                .doc-wrap {
+                    padding: 24px 16px 60px;
+                }
+
+                .doc-hero h1 {
+                    font-size: 28px;
+                }
+
+                .doc-nav {
+                    display: none;
+                }
+
+                table {
+                    display: block;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                .block-flow {
+                    justify-content: center;
+                }
+
+                .bf-box {
+                    min-width: 80px;
+                    padding: 8px;
+                    font-size: 11px;
+                }
+
+                pre.code-block {
+                    padding: 12px;
+                    font-size: 11.5px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .doc-hero {
+                    padding: 30px 16px 20px;
+                }
+
+                .doc-hero h1 {
+                    font-size: 24px;
+                }
+
+                .doc-section h2 {
+                    font-size: 18px;
+                }
+
+                .steps {
+                    padding-left: 0;
+                }
+
+                .step {
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .step-num {
+                    width: 32px;
+                    height: 32px;
+                    font-size: 13px;
+                }
+
+                .topbar-title {
+                    font-size: 13px;
+                }
+            }
         }
     </style>
 </head>
