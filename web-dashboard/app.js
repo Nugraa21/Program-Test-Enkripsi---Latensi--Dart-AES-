@@ -172,7 +172,7 @@ async function doEncrypt() {
         showSizeTable('encSizeTable', 'encSizeNote', 'encSizeCard', oSz, eSz, oSz, latEnc, latDec);
         addLatLog('ENCRYPT_MANUAL', latEnc, text.substring(0, 60));
         addDataLog({ type: 'ENCRYPT_MANUAL', origSz: oSz, encSz: eSz, decSz: oSz, latEnc, isMatch: true, speedEnc: spd });
-        addActivity('enc', 'Enkripsi Manual', fmt(oSz) + ' → ' + fmt(eSz), latEnc);
+        addActivity('enc', 'Enkripsi Manual', fmt(oSz) + ' → ' + fmt(eSz), latEnc, { plain: text, cipher, sizeIn: oSz, sizeOut: eSz });
         S.totalEnc++; S.encHist.push(latEnc); S.decHist.push(latDec);
         updateStats(); updateSysOps(); saveState(); redrawChart();
         toast('Enkripsi berhasil.', 'ok');
@@ -199,7 +199,7 @@ async function doDecrypt() {
         showSizeTable('decSizeTable', 'decSizeNote', 'decSizeCard', eSz, eSz, dSz, null, latDec);
         addLatLog('DECRYPT_MANUAL', latDec, fmt(eSz) + ' → ' + fmt(dSz));
         addDataLog({ type: 'DECRYPT_MANUAL', encSz: eSz, decSz: dSz, latDec, speedDec: spd });
-        addActivity('dec', 'Dekripsi Manual', fmt(eSz) + ' → ' + fmt(dSz), latDec);
+        addActivity('dec', 'Dekripsi Manual', fmt(eSz) + ' → ' + fmt(dSz), latDec, { plain, cipher, sizeIn: eSz, sizeOut: dSz });
         S.totalDec++; S.decHist.push(latDec);
         updateStats(); updateSysOps(); saveState(); redrawChart();
         toast('Dekripsi berhasil.', 'ok');
@@ -453,23 +453,49 @@ const ICONS = {
     dec: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`,
     batch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`
 };
-function addActivity(type, title, sub, lat) {
+function addActivity(type, title, sub, lat, extra = {}) {
     const feed = document.getElementById('activityFeed');
     const emp = feed.querySelector('.feed-empty'); if (emp) emp.remove();
     const time = timeOnly();
+    const idx = S.activities.length;
     const el = document.createElement('div'); el.className = 'feed-item';
+    el.setAttribute('onclick', `showModal(${idx})`);
+    el.style.cursor = 'pointer';
     el.innerHTML = `<div class="fi-icon ${type}">${ICONS[type]}</div><div class="fi-body"><div class="fi-title">${esc(title)}</div><div class="fi-sub">${esc(sub)}</div></div><div class="fi-right"><div class="fi-lat">${lat.toFixed(3)} ms</div><div class="fi-time">${time}</div></div>`;
     feed.insertBefore(el, feed.firstChild); if (feed.children.length > 30) feed.removeChild(feed.lastChild);
-    S.activities.unshift({ type, title, sub, lat, time });
+
+    // Detailed analysis for modal
+    const activity = {
+        id: idx,
+        type,
+        title,
+        sub,
+        lat,
+        time,
+        ts: nowFmt(),
+        plain: extra.plain || 'N/A',
+        cipher: extra.cipher || 'N/A',
+        sizeIn: extra.sizeIn || 0,
+        sizeOut: extra.sizeOut || 0,
+        key: S.keyStr
+    };
+    S.activities.unshift(activity);
     if (S.activities.length > 50) S.activities.pop();
+    // Re-index to match array position for onclick
+    S.activities.forEach((a, i) => {
+        const item = feed.children[i];
+        if (item) item.setAttribute('onclick', `showModal(${i})`);
+    });
 }
 
 function renderActivities() {
     const feed = document.getElementById('activityFeed');
     if (!S.activities.length) return;
     feed.innerHTML = '';
-    S.activities.forEach(a => {
+    S.activities.forEach((a, i) => {
         const el = document.createElement('div'); el.className = 'feed-item';
+        el.setAttribute('onclick', `showModal(${i})`);
+        el.style.cursor = 'pointer';
         el.innerHTML = `<div class="fi-icon ${a.type}">${ICONS[a.type]}</div><div class="fi-body"><div class="fi-title">${esc(a.title)}</div><div class="fi-sub">${esc(a.sub)}</div></div><div class="fi-right"><div class="fi-lat">${a.lat.toFixed(3)} ms</div><div class="fi-time">${a.time}</div></div>`;
         feed.appendChild(el);
     });
@@ -517,7 +543,110 @@ function redrawChart() {
 }
 
 // ─── NAVIGATION ───────────────────────────────────
-const TITLES = { dashboard: 'Dashboard', enkripsi: 'Enkripsi Manual', dekripsi: 'Dekripsi Manual', batch: 'Batch Test JSON', 'log-latensi': 'Log Latensi', 'log-data': 'Log Data', settings: 'Pengaturan Kunci', storage: 'Penyimpanan Lokal' };
+const TITLES = { dashboard: 'Dashboard', enkripsi: 'Enkripsi Manual', dekripsi: 'Dekripsi Manual', batch: 'Batch Test JSON', file: 'Enkripsi File', 'log-latensi': 'Log Latensi', 'log-data': 'Log Data', settings: 'Pengaturan Kunci', storage: 'Penyimpanan Lokal' };
+
+/* ─── LANDING PAGE ─── */
+function enterDashboard() {
+    const lp = document.getElementById('landing-page');
+    const app = document.getElementById('dashboard-app');
+    lp.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+    lp.style.opacity = '0';
+    lp.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+        lp.style.display = 'none';
+        app.style.display = 'block';
+        document.body.classList.remove('loading');
+        setTimeout(redrawChart, 100);
+    }, 600);
+}
+
+/* ─── MODAL ─── */
+function showModal(idx) {
+    const a = S.activities[idx];
+    if (!a) return;
+    const m = document.getElementById('detailModal');
+    document.getElementById('modalTitle').textContent = a.title;
+    document.getElementById('modalTime').textContent = a.ts + ' (' + a.time + ')';
+    document.getElementById('mType').textContent = a.type.toUpperCase();
+    document.getElementById('mLat').textContent = a.lat.toFixed(3) + ' ms';
+    document.getElementById('mSizeIn').textContent = fmtB(a.sizeIn);
+    document.getElementById('mSizeOut').textContent = fmtB(a.sizeOut);
+    document.getElementById('mPlain').value = a.plain;
+    document.getElementById('mCipher').value = a.cipher;
+    document.getElementById('modalIcon').className = 'modal-icon ' + a.type;
+    document.getElementById('modalIcon').innerHTML = ICONS[a.type];
+
+    // Analysis
+    const list = document.getElementById('mAnalysis');
+    const ratio = a.sizeOut / a.sizeIn;
+    const speed = (a.sizeIn / 1024) / (a.lat / 1000);
+    list.innerHTML = `
+        <li>Operasi: ${a.type === 'enc' ? 'Enkripsi (Plain → Cipher)' : 'Dekripsi (Cipher → Plain)'}</li>
+        <li>Rasio Ukuran: ${ratio.toFixed(3)}x</li>
+        <li>Kecepatan Proses: ${speed.toFixed(2)} KB/s</li>
+        <li>Kunci Digunakan: ${a.key.substring(0, 4)}... (Hidden)</li>
+        <li>Kompleksitas: ${a.sizeIn > 1000 ? 'Tinggi' : 'Rendah'}</li>
+    `;
+
+    m.classList.add('active');
+}
+function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
+
+/* ─── FILE ENCRYPTION ─── */
+let _selectedFile = null;
+function handleFileSelect(e) {
+    const f = e.target.files[0]; if (!f) return;
+    _selectedFile = f;
+    document.getElementById('fileName').textContent = f.name;
+    document.getElementById('fileSize').textContent = fmtB(f.size);
+    document.getElementById('fileInfoChip').style.display = 'inline-flex';
+}
+
+async function doFileAction(mode) {
+    if (!_selectedFile) { toast('Pilih file dulu!', 'er'); return; }
+    if (!S.cryptoKey) { toast('Set kunci dahulu!', 'er'); return; }
+    setLoading(true, mode === 'enc' ? 'Mengenkripsi file...' : 'Mendekripsi file...');
+    try {
+        const t0 = performance.now();
+        const arrayBuffer = await _selectedFile.arrayBuffer();
+        let resultBuffer;
+        if (mode === 'enc') {
+            const iv = crypto.getRandomValues(new Uint8Array(16));
+            const enc = await crypto.subtle.encrypt({ name: 'AES-CBC', iv }, S.cryptoKey, arrayBuffer);
+            resultBuffer = new Uint8Array(16 + enc.byteLength);
+            resultBuffer.set(iv, 0); resultBuffer.set(new Uint8Array(enc), 16);
+        } else {
+            const bytes = new Uint8Array(arrayBuffer);
+            if (bytes.length < 17) throw new Error('File tidak valid!');
+            const iv = bytes.slice(0, 16), cipher = bytes.slice(16);
+            resultBuffer = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, S.cryptoKey, cipher);
+        }
+        const lat = performance.now() - t0;
+        const blob = new Blob([resultBuffer]);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = mode === 'enc' ? _selectedFile.name + '.enc' : _selectedFile.name.replace('.enc', '');
+        a.click();
+
+        // UI Results
+        document.getElementById('fileResultGrid').style.display = 'grid';
+        document.getElementById('filePh').style.display = 'none';
+        document.getElementById('fileLat').textContent = lat.toFixed(3) + ' ms';
+        const spd = (_selectedFile.size / 1024) / (lat / 1000);
+        document.getElementById('fileSpeed').textContent = spd.toFixed(2) + ' KB/s';
+
+        addActivity(mode === 'enc' ? 'enc' : 'dec', 'Proses File: ' + _selectedFile.name, fmtB(_selectedFile.size) + (mode === 'enc' ? ' → Encrypted' : ' → Decrypted'), lat, {
+            plain: 'Binary File: ' + _selectedFile.name,
+            cipher: 'Processed Size: ' + fmtB(blob.size),
+            sizeIn: _selectedFile.size,
+            sizeOut: blob.size
+        });
+        saveState();
+        toast('Berhasil!', 'ok');
+    } catch (e) { toast('Error: ' + e.message, 'er'); }
+    finally { setLoading(false); }
+}
 function showTab(id) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -606,6 +735,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial storage info
     refreshStorageView();
 
-    console.log('%cAES-256 Encryption Dashboard', 'color:#6366f1;font-size:16px;font-weight:bold');
-    console.log('%cLocalStorage + Theme Toggle + WebCrypto API', 'color:#9098b5');
+    // File Input
+    const fin = document.getElementById('fileInput');
+    if (fin) fin.addEventListener('change', handleFileSelect);
+
+    // Drop Zone File
+    const fdz = document.getElementById('fileDropZone');
+    if (fdz) {
+        fdz.addEventListener('dragover', e => { e.preventDefault(); fdz.classList.add('dragover'); });
+        fdz.addEventListener('dragleave', () => fdz.classList.remove('dragover'));
+        fdz.addEventListener('drop', e => { e.preventDefault(); fdz.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f) handleFileSelect({ target: { files: [f] } }); });
+    }
+
+    console.log('%cAES-256 Encryption Dashboard v2.0', 'color:#6366f1;font-size:16px;font-weight:bold');
+    console.log('%cPremium UI + Detailed Modal + File Encryption', 'color:#9098b5');
 });
