@@ -24,3 +24,16 @@ Out : enc:code/enkripsi/data_json_20260221_133852.enc.json | dec:code/dekripsi/d
   Dekripsi : 3.289 ms  |  64.13 KB/s
   Total    : 20.277 ms
 ==================================================
+==================================================
+[2026-02-21 13:44:16] [JSON_BATCH_TEST]
+In  : file:code/original/data_json_20260221_134416.json
+Out : enc:code/enkripsi/data_json_20260221_134416.enc.json | dec:code/dekripsi/data_json_20260221_134416.dec.json
+─── Ukuran File ───────────────────────────────
+  Asli     : 128 bytes
+  Enkripsi : 216 bytes (1.688x asli)
+  Dekripsi : 128 bytes (1.000x asli)
+─── Latensi & Kecepatan ───────────────────────
+  Enkripsi : 17.350 ms  |  7.20 KB/s
+  Dekripsi : 2.787 ms  |  75.69 KB/s
+  Total    : 20.137 ms
+==================================================
