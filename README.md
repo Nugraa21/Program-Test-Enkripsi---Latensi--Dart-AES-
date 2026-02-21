@@ -1,70 +1,392 @@
-# Program Test Enkripsi & Latensi (Dart AES)
+# Program Test Enkripsi & Latensi (Dart AES-256-CBC)
 
-Program ini adalah *command-line tool* sederhana untuk menguji fungsionalitas dan performa (latensi) enkripsi AES-256 (CBC Mode).
+Program *command-line* berbasis **Dart** untuk menguji dan mengukur performa algoritma enkripsi **AES-256-CBC** secara menyeluruh — mencakup latensi, kecepatan throughput, ukuran file, dan perbandingan hasil enkripsi vs dekripsi.
+
+> **Mahasiswa:** 225510017 — Ludang Prasetyo Nugroho.
+
+---
 
 ## Fitur Utama
-1. **Bahasa Indonesia**: Antarmuka terminal menggunakan Bahasa Indonesia.
-2. **Kunci Dinamis**: Menggunakan file `key.json` untuk menyimpan kunci enkripsi, sehingga tidak hardcoded di dalam script utama (namun tetap menggunakan kunci default yang diminta).
-3. **Menu Interaktif**:
-   - **Enkripsi Manual**: Masukkan teks -> Hasilkan Ciphertext.
-   - **Dekripsi Manual**: Masukkan Ciphertext -> Kembali ke Teks Asli.
-   - **Test Latensi Massal**: Menjalankan test otomatis pada daftar kata yang ada di `data.json` untuk mengukur kecepatan rata-rata.
-4. **Pemisahan Log**:
-   - `data.log`: Menyimpan riwayat data (teks asli dan hasil enkripsi).
-   - `latency.log`: Menyimpan riwayat kecepatan performa (dalam milidetik).
 
-## Cara Instalasi
+| # | Fitur | Keterangan |
+|---|-------|-----------|
+| 1 | **Enkripsi Manual** | Masukkan teks → enkripsi → simpan ke `code/enkripsi/` |
+| 2 | **Dekripsi Manual** | Masukkan Base64 → dekripsi → simpan ke `code/dekripsi/` |
+| 3 | **Batch Test `data.json`** | Enkripsi + dekripsi JSON, ukur latensi, size, throughput |
+| 4 | **Log Latensi** | Riwayat waktu proses (ms) dari `latency.log` |
+| 5 | **Log Data Lengkap** | Riwayat data + **latensi, kecepatan (KB/s), dan ukuran file** |
 
-Pastikan Anda sudah menginstall **Dart SDK**.
+### Folder Output Otomatis (`code/`)
 
-1. Buka terminal di folder project ini:
-   ```bash
-   cd "Test program"
-   ```
+Setiap operasi menghasilkan file yang tersimpan secara otomatis:
 
-2. Download dependensi yang dibutuhkan:
-   ```bash
-   dart pub get
-   ```
+```
+code/
+├── original/    ← salinan file asli          (contoh: data_json_20260221_124340.json)
+├── enkripsi/    ← file hasil enkripsi AES     (contoh: data_json_20260221_124340.enc.json)
+└── dekripsi/    ← file hasil dekripsi kembali (contoh: data_json_20260221_124340.dec.json)
+```
+
+---
+
+## Instalasi
+
+Pastikan **Dart SDK** sudah terpasang di sistem.
+
+```bash
+# Pindah ke folder project
+cd "Test program"
+
+# Download dependensi
+dart pub get
+```
+
+**Dependensi yang digunakan (`pubspec.yaml`):**
+```yaml
+dependencies:
+  encrypt: ^5.0.3   # Library AES enkripsi/dekripsi
+  intl: ^0.18.0     # Format timestamp pada log
+  path: ^1.8.3      # Manipulasi path file
+```
+
+---
 
 ## Cara Penggunaan
 
-Jalankan program utama dengan perintah:
-
 ```bash
-dart bin/aes_test.dart
+dart run bin/aes_test.dart
 ```
 
 ### Menu Utama
-Setelah dijalankan, Anda akan melihat menu seperti berikut:
 
-```text
+```
 =============================================
      Aplikasi Test Latensi AES (Dart)
 =============================================
 1. Enkripsi Data Manual
 2. Dekripsi Data Manual
-3. Test Latensi Massal (dari data.json)
+3. Enkripsi data.json (Batch + File Output)
 4. Lihat Log Latensi Terakhir
 5. Lihat Log Data Terakhir
 6. Keluar
 =============================================
+Pilih menu (1-6): _
 ```
 
-- **Pilih 1**: Untuk mencoba mengenkripsi satu kalimat. Hasilnya akan tampil di layar dan disimpan ke log.
-- **Pilih 2**: Untuk mendekripsi kode (base64) yang sudah dienkripsi sebelumnya. Pastikan string yang dimasukkan lengkap.
-- **Pilih 3**: Untuk mengetest kecepatan program dengan banyak data sekaligus. Data diambil dari file `data.json`. Anda juga akan ditawarkan untuk menambah data test baru di sini.
-- **Pilih 4 & 5**: Untuk melihat riwayat log langsung dari terminal tanpa membuka file.
+| Menu | Fungsi |
+|------|--------|
+| **1** | Enkripsi teks bebas → tampilkan hasil + ukuran file → simpan ke `code/` |
+| **2** | Dekripsi ciphertext (Base64) → tampilkan hasil + ukuran file → simpan ke `code/` |
+| **3** | Baca `data.json` → enkripsi + dekripsi → ukur latensi, size, rasio → buat 3 file output |
+| **4** | Lihat 15 entri terakhir `latency.log` |
+| **5** | Lihat 5 entri terakhir `data.log` (dengan latensi, KB/s, ukuran file) |
+| **6** | Keluar program |
 
-## Struktur File
-- **bin/aes_test.dart**: Program utama (main loop).
-- **lib/api_encryption.dart**: Logic enkripsi/dekripsi AES.
-- **key.json**: Tempat menyimpan kunci 32-karakter.
-- **data.json**: Database sederhana untuk kata-kata test massal.
-- **data.log**: Log isi pesan (data).
-- **latency.log**: Log kecepatan proses.
+---
+
+## Contoh Output Program (Menu 3)
+
+```
+▶ Mengenkripsi seluruh isi data.json...
+▶ Mendekripsi kembali...
+
+┌─────────────────────────────────────────────────────┐
+│              HASIL TEST ENKRIPSI data.json           │
+├─────────────────────────────────────────────────────┤
+│ LATENSI                                              │
+│   Enkripsi :   11.432 ms                             │
+│   Dekripsi :   10.494 ms                             │
+│   Total    :   21.926 ms                             │
+├─────────────────────────────────────────────────────┤
+│ STATUS VERIFIKASI                                    │
+│   Data Cocok? : ✓  YA - Dekripsi berhasil sempurna   │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│            PERBANDINGAN UKURAN FILE                  │
+│ File Asli      : 124 bytes                           │
+│ File Enkripsi  : 220 bytes                           │
+│ File Dekripsi  : 124 bytes                           │
+│ Rasio Enkripsi : 1.774x  (thd asli)                  │
+│ Rasio Dekripsi : 1.000x  (thd asli)                  │
+│ Klaim Dosen    : ✗ Tidak persis 2x (rasio 1.000x)    │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+## Penjelasan Kode (Untuk Ujian/Sidang)
+
+### 1. Struktur Class `ApiEncryption` (`lib/api_encryption.dart`)
+
+Class utama yang berisi logika enkripsi dan dekripsi AES:
+
+```dart
+import 'dart:convert';
+import 'package:encrypt/encrypt.dart';
+
+class ApiEncryption {
+  static String _key = "";       // kunci disimpan di memori
+
+  static void setKey(String key) { _key = key; }
+}
+```
+
+#### Fungsi Enkripsi
+
+```dart
+static String encrypt(String plainText) {
+  final key = Key.fromUtf8(_key);           // kunci 32 karakter → 256 bit
+  final iv  = IV.fromSecureRandom(16);      // IV 16 byte RANDOM setiap enkripsi
+  final encrypter = Encrypter(AES(key, mode: AESMode.cbc)); // mode CBC
+
+  final encrypted = encrypter.encrypt(plainText, iv: iv);
+
+  // Gabungkan IV + ciphertext → encode ke Base64
+  final combined = iv.bytes + encrypted.bytes;
+  return base64Encode(combined);
+}
+```
+
+> **Kenapa IV digabung di depan?** Agar saat dekripsi, IV bisa langsung diambil dari 16 byte pertama tanpa perlu dikirim terpisah.
+
+#### Fungsi Dekripsi
+
+```dart
+static String decrypt(String encryptedBase64) {
+  final key  = Key.fromUtf8(_key);
+  final data = base64Decode(encryptedBase64);   // decode Base64
+
+  final iv            = IV(data.sublist(0, 16));   // ambil 16 byte pertama = IV
+  final encryptedData = data.sublist(16);           // sisanya = ciphertext
+
+  final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
+  return encrypter.decrypt(Encrypted(encryptedData), iv: iv);
+}
+```
+
+---
+
+### 2. Timer yang Digunakan: `Stopwatch` (`dart:core`)
+
+> **Jika dosen bertanya:** *"Pengujian latensi menggunakan timer apa?"*
+
+**Jawaban:** Program menggunakan **`Stopwatch`** — kelas bawaan Dart dari library `dart:core`, tanpa package tambahan.
+
+#### Potongan Kode Pengukuran Latensi
+
+```dart
+// ① Mulai stopwatch TEPAT SEBELUM operasi
+final stopwatch = Stopwatch()..start();
+
+// ② Jalankan proses enkripsi
+String encrypted = ApiEncryption.encrypt(plainText);
+
+// ③ Hentikan stopwatch TEPAT SETELAH selesai
+stopwatch.stop();
+
+// ④ Ambil hasil dalam microsecond → konversi ke milidetik
+double latencyMs = stopwatch.elapsedMicroseconds / 1000.0;
+print('Waktu Enkripsi: ${latencyMs.toStringAsFixed(3)} ms');
+```
+
+#### Mengapa Menggunakan `Stopwatch`?
+
+| Aspek | Penjelasan |
+|-------|-----------|
+| **Sumber** | `dart:core` — bawaan Dart, tanpa import tambahan |
+| **Presisi** | Hingga **microsecond (µs)** → dikonversi ke **milidetik (ms)** |
+| **Cara kerja** | `.start()` → proses → `.stop()` → `.elapsedMicroseconds` |
+| **Jenis waktu** | *Wall-clock time* (waktu nyata, bukan CPU time) |
+| **Setara dengan** | `System.nanoTime()` (Java) · `time.perf_counter()` (Python) |
+
+#### Di Mana Saja `Stopwatch` Digunakan?
+
+Program menggunakan `Stopwatch` di **3 tempat berbeda** secara terpisah:
+
+```dart
+// --- Mengukur ENKRIPSI ---
+final swEnc = Stopwatch()..start();
+String encryptedContent = ApiEncryption.encrypt(originalContent);
+swEnc.stop();
+double latEnc = swEnc.elapsedMicroseconds / 1000.0;
+
+// --- Mengukur DEKRIPSI ---
+final swDec = Stopwatch()..start();
+String decryptedContent = ApiEncryption.decrypt(encryptedContent);
+swDec.stop();
+double latDec = swDec.elapsedMicroseconds / 1000.0;
+
+// Kedua hasil dicatat secara terpisah ke log
+print('Enkripsi: ${latEnc.toStringAsFixed(3)} ms');
+print('Dekripsi: ${latDec.toStringAsFixed(3)} ms');
+print('Total   : ${(latEnc + latDec).toStringAsFixed(3)} ms');
+```
+
+> Stopwatch **enkripsi** dan **dekripsi** dijalankan **TERPISAH** agar latensi masing-masing proses terukur secara independen dan tidak saling mempengaruhi.
+
+---
+
+### 3. Pengukuran Throughput (Kecepatan KB/s)
+
+Selain latensi (ms), program juga menghitung **kecepatan throughput**:
+
+```dart
+// Kecepatan enkripsi: ukuran file asli / waktu enkripsi
+double speedEncKBs = (origSize / 1024) / (latEnc / 1000.0);
+
+// Kecepatan dekripsi: ukuran file enkripsi / waktu dekripsi
+double speedDecKBs = (encSize / 1024) / (latDec / 1000.0);
+```
+
+Hasil tersimpan di `data.log`:
+```
+─── Latensi & Kecepatan ───────────────────────────
+  Enkripsi : 11.432 ms  |  10.61 KB/s
+  Dekripsi : 10.494 ms  |  20.51 KB/s
+  Total    : 21.926 ms
+```
+
+---
+
+### 4. Pengukuran & Perbandingan Ukuran File
+
+```dart
+// Tulis file ke disk
+await origFile.writeAsString(originalContent);    // file asli
+await encFile.writeAsString(encryptedContent);    // file enkripsi
+await dekFile.writeAsString(decryptedContent);    // file dekripsi
+
+// Baca ukuran aktual dari disk (dalam bytes)
+int origBytes = await origFile.length();
+int encBytes  = await encFile.length();
+int dekBytes  = await dekFile.length();
+
+// Hitung rasio
+double ratioEnk = encBytes / origBytes;   // enkripsi vs asli
+double ratioDek = dekBytes / origBytes;   // dekripsi vs asli
+
+// Verifikasi klaim "2x lipat"
+bool isDekripsiDouble = (ratioDek >= 1.8 && ratioDek <= 2.2);
+```
+
+---
+
+## Analisis Teori: Enkripsi vs Dekripsi AES
+
+### Perbedaan Transformasi Internal
+
+| Proses | Transformasi yang Dilakukan (per round) |
+|--------|----------------------------------------|
+| **Enkripsi** | SubBytes → ShiftRows → MixColumns → AddRoundKey |
+| **Dekripsi** | InvShiftRows → InvSubBytes → AddRoundKey → InvMixColumns |
+
+Transformasi **invers** (`Inv-`) pada dekripsi umumnya lebih kompleks secara komputasi dibanding versi forwardnya, terutama `InvMixColumns`.
+
+### Mengapa Kecepatan Bisa Berbeda?
+
+**1. Enkripsi bisa lebih lambat** karena ada overhead tambahan:
+- `IV.fromSecureRandom(16)` — pembangkitan IV acak menggunakan *Cryptographically Secure RNG*
+- *PKCS7 Padding* — penambahan padding agar ukuran data kelipatan 16 byte (blok AES)
+- *Key Expansion* — penjadwalan kunci internal AES
+
+**2. Dekripsi bisa lebih lambat** karena:
+- Operasi invers (`InvMixColumns`) lebih kompleks dibanding versi forwardnya
+- Round key perlu diaplikasikan dalam urutan terbalik
+
+**3. Pada praktiknya (implementasi software):**
+- Selisih waktu enkripsi dan dekripsi sangat kecil (**mikro–milidetik**)
+- Perbedaan lebih dipengaruhi oleh: **library yang digunakan**, **mode AES**, dan **lingkungan sistem** (CPU, JIT compiler Dart)
+
+### Kesimpulan untuk Implementasi Ini
+
+> Menggunakan **AES-256-CBC** dengan package `encrypt` versi 5.x di Dart:
+> - Waktu enkripsi ≈ waktu dekripsi (selisih sangat kecil, <5 ms)
+> - **Enkripsi cenderung sedikit lebih lambat** karena ada `IV.fromSecureRandom(16)` yang memlemanggil *Cryptographically Secure RNG* setiap kali enkripsi dijalankan
+> - **Dekripsi tidak butuh generate IV** — IV langsung diambil dari 16 byte pertama ciphertext
+> - Selisih kecepatan lebih mencerminkan **implementasi library**, bukan perbedaan fundamental algoritma AES itu sendiri
+
+---
+
+## Penjelasan Ukuran File Hasil Enkripsi
+
+### Mengapa File Enkripsi Lebih Besar dari File Asli?
+
+Format output enkripsi pada program ini: `Base64( IV[16 byte] + Ciphertext )`
+
+```
+Ukuran asli       : N bytes
++ IV (prepend)    : +16 bytes   ← IV 16 byte digabung di depan
++ PKCS7 Padding   : +0 s/d +15 bytes ← padding agar kelipatan 16
+= Ciphertext bytes: N + 16 bytes (approx)
+= Setelah Base64  : ≈ (N + 16) × 4/3 bytes ← Base64 menambah ~33%
+```
+
+**Contoh nyata** (data.json = 124 bytes):
+```
+124 + 16 (IV) + 4 (padding) = 144 bytes ciphertext
+144 × 4/3 = 192 bytes → dibulatkan Base64 = ~220 bytes
+Rasio: 220 / 124 = 1.774x ukuran asli
+```
+
+### Mengapa File Dekripsi = Sama dengan File Asli?
+
+Karena dekripsi AES **mengembalikan data persis seperti semula** — ini adalah sifat dasar algoritma simetris. Jika hasil dekripsi berbeda dari asli, berarti ada kesalahan kunci, IV, atau data corrupt.
+
+> **Catatan soal klaim "dekripsi 2× asli":** Secara teori AES standar, hasil dekripsi **tidak** menjadi 2× ukuran asli. Kemungkinan yang dimaksud dosen adalah: ukuran *file enkripsi* (bukan dekripsi) yang bisa mendekati 2× karena overhead IV + padding + Base64.
+
+---
+
+## Struktur File Project
+
+```
+Test program/
+├── bin/
+│   └── aes_test.dart         ← Program utama (menu, logika test, logging)
+├── lib/
+│   └── api_encryption.dart   ← Class ApiEncryption (AES-256-CBC encrypt/decrypt)
+├── code/                     ← Output file (dibuat otomatis saat program dijalankan)
+│   ├── original/             ← Salinan file asli sebelum enkripsi
+│   ├── enkripsi/             ← File hasil enkripsi (.enc.json / .enc.txt)
+│   └── dekripsi/             ← File hasil dekripsi (.dec.json / .txt)
+├── key.json                  ← Kunci enkripsi AES 32 karakter (256 bit)
+├── data.json                 ← Dataset input untuk batch test
+├── data.log                  ← Log data: input, output, latensi, ukuran, KB/s
+├── latency.log               ← Log latensi: waktu proses per operasi
+└── pubspec.yaml              ← Konfigurasi dependensi Dart
+```
+
+### Format `key.json`
+
+```json
+{
+    "key": "SkadutaPresensi2025SecureKey1234"
+}
+```
+> Kunci harus tepat **32 karakter UTF-8** = 256 bit (AES-256).
+
+### Format `data.json`
+
+```json
+[
+    "{\"username\": \"testuser\", \"password\": \"password123\"}",
+    "{\"username\": \"barunugraha\", \"role\": \"user\"}",
+    "{\"userId\": \"101\", \"jenis\": \"Masuk\", \"keterangan\": \"Tepat Waktu\"}"
+]
+```
+
+---
 
 ## Catatan Teknis
-- Algoritma: AES-256 CBC Mode.
-- IV (Initialization Vector): 16 bytes random, digabungkan di awal hasil enkripsi.
-- Key: Harus tepat 32 karakter utf-8.
+
+| Aspek | Detail |
+|-------|--------|
+| **Algoritma** | AES-256 CBC Mode |
+| **Ukuran Kunci** | 32 byte = 256 bit |
+| **IV** | 16 byte random (`IV.fromSecureRandom(16)`), digabung di depan ciphertext |
+| **Padding** | PKCS7 (otomatis oleh library `encrypt`) |
+| **Encoding output** | Base64 |
+| **Timer** | `Stopwatch` dari `dart:core`, presisi hingga **microsecond (µs)** |
+| **Satuan latensi** | Milidetik (ms) = `elapsedMicroseconds / 1000.0` |
+| **Throughput** | KB/s = `(ukuranFile / 1024) / (latensi / 1000)` |
+| **Library enkripsi** | `encrypt: ^5.0.3` |
