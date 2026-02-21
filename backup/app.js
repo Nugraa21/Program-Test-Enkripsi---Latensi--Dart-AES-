@@ -15,7 +15,6 @@ const LS = {
     STATS: 'aes-stats',
     LAST_C: 'aes-lastCipher',
     BATCH_IN: 'aes-batchIn',
-    ACTIVITIES: 'aes-activities',
 };
 
 // ─── STATE ────────────────────────────────────────
@@ -30,7 +29,6 @@ const S = {
     totalEnc: 0,
     totalDec: 0,
     logFilter: 'all',
-    activities: [],
 };
 
 // ─── LOCALSTORAGE HELPERS ─────────────────────────
@@ -44,7 +42,6 @@ function saveState() {
     lsSet(LS.DATA_LOG, S.dataLog.slice(-50));
     lsSet(LS.STATS, { encHist: S.encHist.slice(-50), decHist: S.decHist.slice(-50), totalEnc: S.totalEnc, totalDec: S.totalDec });
     lsSet(LS.LAST_C, S.lastCipher);
-    lsSet(LS.ACTIVITIES, S.activities.slice(0, 50));
 }
 
 function loadState() {
@@ -56,7 +53,6 @@ function loadState() {
     S.totalEnc = st.totalEnc || 0;
     S.totalDec = st.totalDec || 0;
     S.lastCipher = lsGet(LS.LAST_C) || '';
-    S.activities = lsGet(LS.ACTIVITIES) || [];
     const bi = lsGet(LS.BATCH_IN);
     if (bi) { const el = document.getElementById('batchIn'); if (el) el.value = bi; }
 }
@@ -440,7 +436,7 @@ function clearSpecific(key) {
 function clearAllStorage() {
     if (!confirm('Hapus SEMUA data aplikasi? Aksi ini tidak bisa dibatalkan.')) return;
     Object.values(LS).forEach(lsDel);
-    S.latLog = []; S.dataLog = []; S.encHist = []; S.decHist = []; S.totalEnc = 0; S.totalDec = 0; S.lastCipher = ''; S.activities = [];
+    S.latLog = []; S.dataLog = []; S.encHist = []; S.decHist = []; S.totalEnc = 0; S.totalDec = 0; S.lastCipher = '';
     renderLatLog(); renderDataLog(); updateLatLogCount(); updateDataLogCount(); updateStats(); redrawChart();
     const b = document.getElementById('batchIn'); if (b) b.value = ''; updateBatchSz();
     document.getElementById('activityFeed').innerHTML = `<div class="feed-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Belum ada aktivitas.</p></div>`;
@@ -456,29 +452,11 @@ const ICONS = {
 function addActivity(type, title, sub, lat) {
     const feed = document.getElementById('activityFeed');
     const emp = feed.querySelector('.feed-empty'); if (emp) emp.remove();
-    const time = timeOnly();
     const el = document.createElement('div'); el.className = 'feed-item';
-    el.innerHTML = `<div class="fi-icon ${type}">${ICONS[type]}</div><div class="fi-body"><div class="fi-title">${esc(title)}</div><div class="fi-sub">${esc(sub)}</div></div><div class="fi-right"><div class="fi-lat">${lat.toFixed(3)} ms</div><div class="fi-time">${time}</div></div>`;
+    el.innerHTML = `<div class="fi-icon ${type}">${ICONS[type]}</div><div class="fi-body"><div class="fi-title">${esc(title)}</div><div class="fi-sub">${esc(sub)}</div></div><div class="fi-right"><div class="fi-lat">${lat.toFixed(3)} ms</div><div class="fi-time">${timeOnly()}</div></div>`;
     feed.insertBefore(el, feed.firstChild); if (feed.children.length > 30) feed.removeChild(feed.lastChild);
-    S.activities.unshift({ type, title, sub, lat, time });
-    if (S.activities.length > 50) S.activities.pop();
 }
-
-function renderActivities() {
-    const feed = document.getElementById('activityFeed');
-    if (!S.activities.length) return;
-    feed.innerHTML = '';
-    S.activities.forEach(a => {
-        const el = document.createElement('div'); el.className = 'feed-item';
-        el.innerHTML = `<div class="fi-icon ${a.type}">${ICONS[a.type]}</div><div class="fi-body"><div class="fi-title">${esc(a.title)}</div><div class="fi-sub">${esc(a.sub)}</div></div><div class="fi-right"><div class="fi-lat">${a.lat.toFixed(3)} ms</div><div class="fi-time">${a.time}</div></div>`;
-        feed.appendChild(el);
-    });
-}
-function clearActivity() {
-    document.getElementById('activityFeed').innerHTML = `<div class="feed-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Belum ada aktivitas.</p></div>`;
-    S.encHist = []; S.decHist = []; S.totalEnc = 0; S.totalDec = 0; S.activities = [];
-    updateStats(); redrawChart(); saveState();
-}
+function clearActivity() { document.getElementById('activityFeed').innerHTML = `<div class="feed-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>Belum ada aktivitas.</p></div>`; S.encHist = []; S.decHist = []; S.totalEnc = 0; S.totalDec = 0; updateStats(); redrawChart(); }
 
 // ─── STATS ────────────────────────────────────────
 function updateStats() {
@@ -577,7 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStats(); updateSysOps();
     renderLatLog(); updateLatLogCount();
     renderDataLog(); updateDataLogCount();
-    renderActivities();
 
     // Chart
     initChart();

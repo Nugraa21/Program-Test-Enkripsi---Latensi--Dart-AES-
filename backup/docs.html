@@ -963,16 +963,14 @@
 
     <nav class="doc-nav">
         <div class="doc-nav-inner">
-            <a href="#panduan" class="active">Penggunaan</a>
-            <a href="#matematika">Matematika AES</a>
-            <a href="#pengantar">Pengantar</a>
-            <a href="#struktur">Struktur</a>
-            <a href="#round">Proses Round</a>
+            <a href="#panduan" class="active">Panduan Penggunaan</a>
+            <a href="#pengantar">Pengantar AES</a>
+            <a href="#struktur">Struktur Blok</a>
+            <a href="#round">Proses Per Round</a>
             <a href="#cbc">Mode CBC</a>
             <a href="#key-schedule">Key Schedule</a>
-            <a href="#pengujian">Metodologi Uji</a>
-            <a href="#arsitektur">Arsitektur</a>
-            <a href="#dart">Dart Sync</a>
+            <a href="#output">Format Output</a>
+            <a href="#dart">Kompatibilitas Dart</a>
             <a href="#faq">FAQ</a>
         </div>
     </nav>
@@ -980,9 +978,9 @@
     <div class="doc-wrap">
 
         <div class="doc-hero">
-            <h1>Panduan Komprehensif AES-256</h1>
-            <p>Eksplorasi mendalam algoritma AES-256-CBC, dasar matematika Galois Field,
-                visualisasi proses round, metodologi pengujian latensi, dan integrasi sistem dashboard.</p>
+            <h1>Dokumentasi AES-256-CBC</h1>
+            <p>Panduan lengkap penggunaan dashboard, penjelasan algoritma AES dari dasar hingga cara kerja per blok,
+                mode operasi CBC, dan kompatibilitas dengan implementasi Dart.</p>
         </div>
 
         <!-- ══════════════════════════════════════════
@@ -1113,43 +1111,7 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 2: MATEMATIKA AES
-  ══════════════════════════════════════════ -->
-        <section class="doc-section" id="matematika">
-            <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                    <path d="M4 7h16M4 12h16M4 17h16" />
-                </svg>
-                2. Matematika di Balik AES: Galois Field
-                <span class="tag nist">GF(2⁸)</span>
-            </h2>
-
-            <h3>2.1 Finite Field (Medan Hingga)</h3>
-            <p>AES tidak menggunakan matematika bilangan bulat biasa, melainkan <strong>Galois Field GF(2⁸)</strong>.
-                Dalam medan ini, semua hasil operasi (penjumlahan, perkalian) dijamin tetap berada dalam rentang 0–255
-                (1 byte).</p>
-            <ul>
-                <li><strong>Penjumlahan:</strong> Identik dengan operasi bitwise <strong>XOR</strong>.</li>
-                <li><strong>Perkalian:</strong> Dilakukan terhadap polinomial irredusibel
-                    <code>m(x) = x⁸ + x⁴ + x³ + x + 1</code> (nilai hex: <code>0x11B</code>).
-                </li>
-            </ul>
-
-            <h3>2.2 Mengapa Menggunakan GF(2⁸)?</h3>
-            <p>Kriptografi membutuhkan sifat **"Avalanche Effect"** (efek domino). Dalam GF(2⁸), perubahan 1 bit pada
-                input akan menyebar secara merata dan tidak terduga ke seluruh output setelah operasi perkalian. Ini
-                mencegah pola linear yang mudah dipecah oleh kriptanalisis.</p>
-
-            <div class="callout yellow">
-                <div class="callout-title">🔬 Byte sebagai Polinomial</div>
-                Satu byte <code>0x53</code> (biner: <code>01010011</code>) dalam AES direpresentasikan sebagai
-                polinomial:
-                <code>x⁶ + x⁴ + x + 1</code>.
-            </div>
-        </section>
-
-        <!-- ══════════════════════════════════════════
-       BAGIAN 3: PENGANTAR AES
+       BAGIAN 2: PENGANTAR AES
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="pengantar">
             <h2>
@@ -1158,7 +1120,7 @@
                     <path d="M2 17l10 5 10-5" />
                     <path d="M2 12l10 5 10-5" />
                 </svg>
-                3. Pengantar AES (Advanced Encryption Standard)
+                2. Pengantar AES (Advanced Encryption Standard)
                 <span class="tag nist">NIST FIPS 197</span>
             </h2>
 
@@ -1225,7 +1187,7 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 4: STRUKTUR BLOK
+       BAGIAN 3: STRUKTUR BLOK
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="struktur">
             <h2>
@@ -1235,7 +1197,7 @@
                     <rect x="14" y="14" width="7" height="7" />
                     <rect x="3" y="14" width="7" height="7" />
                 </svg>
-                4. Struktur Blok AES
+                3. Struktur Blok AES
             </h2>
 
             <h3>3.1 Block Size</h3>
@@ -1292,7 +1254,7 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 5: PROSES PER ROUND
+       BAGIAN 4: PROSES PER ROUND
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="round">
             <h2>
@@ -1300,7 +1262,7 @@
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 6v6l4 2" />
                 </svg>
-                5. Proses Per Round AES-256
+                4. Proses Per Round AES-256
             </h2>
 
             <div class="callout blue">
@@ -1380,7 +1342,7 @@
             <div class="callout yellow">
                 <div class="callout-title">⚠️ MixColumns Tidak Ada di Round Terakhir</div>
                 Round ke-14 (final) tidak menggunakan MixColumns. Ini by-design agar dekripsi bisa menggunakan operasi
-                invers yang tersusun rapi tanpa perlu mengompensasi MixColumns di level bit terakhir.
+                invers yang tersusun rapi.
             </div>
 
             <h4>④ AddRoundKey — XOR dengan Round Key</h4>
@@ -1390,14 +1352,14 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 6: MODE CBC
+       BAGIAN 5: MODE CBC
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="cbc">
             <h2>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                 </svg>
-                6. Mode Operasi CBC (Cipher Block Chaining)
+                5. Mode Operasi CBC (Cipher Block Chaining)
                 <span class="tag mode">CBC</span>
             </h2>
 
@@ -1453,7 +1415,7 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 7: KEY SCHEDULE
+       BAGIAN 6: KEY SCHEDULE
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="key-schedule">
             <h2>
@@ -1461,7 +1423,7 @@
                     <path
                         d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
                 </svg>
-                7. Key Schedule &amp; Inverse Key Schedule
+                6. Key Schedule &amp; Inverse Key Schedule
             </h2>
 
             <h3>6.1 Key Expansion</h3>
@@ -1473,13 +1435,11 @@
                 <li>Tiap round key digunakan sekali dalam operasi AddRoundKey</li>
             </ul>
 
-            <h3>7.2 Inverse Key Schedule (Mengapa Dekripsi Lebih Lambat?)</h3>
+            <h3>6.2 Inverse Key Schedule (Mengapa Dekripsi Lebih Lambat?)</h3>
             <p>Untuk dekripsi AES, diperlukan operasi <strong>InvMixColumns</strong> yang diaplikasikan ke round key
                 (kecuali round pertama dan terakhir). Ini disebut <em>Equivalent Inverse Cipher</em>.</p>
             <p>InvMixColumns melibatkan perkalian di <strong>GF(2⁸)</strong> menggunakan konstanta berbeda dari
-                enkripsi. Operasi ini memerlukan komputasi tambahan: Konstanta {0E, 0B, 0D, 09} memiliki bobot bit yang
-                lebih banyak dibanding {02, 03, 01}.</p>
-
+                enkripsi. Operasi ini memerlukan komputasi tambahan:</p>
 
             <table class="round-table">
                 <thead>
@@ -1555,7 +1515,7 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 8: FORMAT OUTPUT
+       BAGIAN 7: FORMAT OUTPUT
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="output">
             <h2>
@@ -1563,7 +1523,7 @@
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                 </svg>
-                8. Format Output Enkripsi
+                7. Format Output Enkripsi
             </h2>
 
             <h3>7.1 Struktur Output</h3>
@@ -1599,61 +1559,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 9: METODOLOGI PENGUJIAN
-  ══════════════════════════════════════════ -->
-        <section class="doc-section" id="pengujian">
-            <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                    <line x1="18" y1="20" x2="18" y2="10" />
-                    <line x1="12" y1="20" x2="12" y2="4" />
-                    <line x1="6" y1="20" x2="6" y2="14" />
-                </svg>
-                9. Metodologi Pengujian latensi
-            </h2>
-            <h3>9.1 Pengukuran Waktu Eksisi</h3>
-            <p>Dashboard menggunakan high-resolution timestamp melalui <code>performance.now()</code>. Berbeda dengan
-                <code>Date.now()</code> yang memiliki keterbatasan presisi, <code>performance.now()</code> memberikan
-                akurasi hingga seperseribu milidetik (μs), sangat krusial untuk mengukur operasi kriptografi yang cepat.
-            </p>
-
-            <h3>9.2 Perhitungan Throughput</h3>
-            <p>Throughput dihitung dengan rumus:
-                <code>Speed (KB/s) = (Size in Bytes / (Time in ms / 1000)) / 1024</code>. Ini memberikan gambaran
-                performa hardware dalam memproses data per detik.
-            </p>
-
-            <h3>9.3 Verifikasi Integritas</h3>
-            <p>Setiap operasi batch menyertakan uji verifikasi:
-                <code>Plaintext ≡ Decrypted(Encrypted(Plaintext))</code>. Jika hasil dekripsi tidak identik bit-per-bit
-                dengan input asli, dashboard akan menandai status <strong>FAIL</strong>.
-            </p>
-        </section>
-
-        <!-- ══════════════════════════════════════════
-       BAGIAN 10: ARSITEKTUR SISTEM
-  ══════════════════════════════════════════ -->
-        <section class="doc-section" id="arsitektur">
-            <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2" />
-                    <polyline points="2 17 12 22 22 17" />
-                    <polyline points="2 12 12 17 22 12" />
-                </svg>
-                10. Arsitektur Dashboard Web
-            </h2>
-            <p>Aplikasi dibangun dengan arsitektur <strong>Serverless SPA</strong> (Single Page Application) yang fokus
-                pada keamanan data lokal.</p>
-            <ul>
-                <li><strong>Engine:</strong> Web Crypto API (Native Browser Implementation) untuk keamanan maksimal.
-                </li>
-                <li><strong>Storage:</strong> LocalStorage dengan skema log terindeks untuk menyimpan riwayat latensi.
-                </li>
-                <li><strong>UI:</strong> CSS Vanilla dengan sistem tema sinkron.</li>
-            </ul>
-        </section>
-
-        <!-- ══════════════════════════════════════════
-       BAGIAN 11: KOMPATIBILITAS DART
+       BAGIAN 8: KOMPATIBILITAS DART
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="dart">
             <h2>
@@ -1661,7 +1567,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
                     <polyline points="16 18 22 12 16 6" />
                     <polyline points="8 6 2 12 8 18" />
                 </svg>
-                11. Kompatibilitas dengan Implementasi Dart
+                8. Kompatibilitas dengan Implementasi Dart
             </h2>
 
             <h3>8.1 Pemetaan Fitur Dart → Web</h3>
@@ -1743,7 +1649,7 @@ out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class=
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 12: FAQ
+       BAGIAN 9: FAQ
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="faq">
             <h2>
@@ -1752,7 +1658,7 @@ out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class=
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
-                12. FAQ
+                9. FAQ
             </h2>
 
             <h3>Apakah data saya aman?</h3>
@@ -1856,7 +1762,7 @@ out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class=
         applyTheme(lsGet('aes-theme') || 'dark');
 
         // Active nav highlight on scroll
-        const secs = ['panduan', 'matematika', 'pengantar', 'struktur', 'round', 'cbc', 'key-schedule', 'pengujian', 'arsitektur', 'output', 'dart', 'faq'];
+        const secs = ['panduan', 'pengantar', 'struktur', 'round', 'cbc', 'key-schedule', 'output', 'dart', 'faq'];
         const links = document.querySelectorAll('.doc-nav a');
         window.addEventListener('scroll', () => {
             let cur = 'panduan';
@@ -1868,17 +1774,6 @@ out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class=
             const el = document.querySelector(a.getAttribute('href'));
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }));
-        // Auto-print detector
-        window.addEventListener('load', () => {
-            if (window.location.search.includes('print=true')) {
-                setTimeout(() => {
-                    window.print();
-                    // Clean URL after printing to prevent loop on refresh
-                    const newUrl = window.location.origin + window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
-                }, 800);
-            }
-        });
     </script>
 </body>
 
