@@ -134,34 +134,58 @@
             color: var(--sub);
         }
 
-        .callout.red {
-            background: rgba(251, 115, 133, .07);
-            border: 1px solid rgba(251, 115, 133, .2);
-            color: var(--sub);
-        }
-
-        .callout-title {
-            font-weight: 700;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-        }
-
-        .callout.blue .callout-title {
-            color: var(--ind-l);
-        }
-
-        .callout.yellow .callout-title {
-            color: var(--yellow);
-        }
-
-        .callout.green .callout-title {
-            color: var(--green);
-        }
-
         .callout.red .callout-title {
             color: var(--rose);
+        }
+
+        /* Scientific Math Blocks */
+        .math-block {
+            background: rgba(99, 102, 241, 0.03);
+            border-left: 4px solid var(--ind);
+            padding: 16px 20px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .math-sym {
+            color: var(--ind-l);
+            font-weight: 700;
+        }
+
+        .math-val {
+            color: var(--orange);
+        }
+
+        /* Glossary Styles */
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .gloss-item {
+            background: var(--hover);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .gloss-term {
+            font-weight: 700;
+            color: var(--ind-l);
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .gloss-def {
+            font-size: 13px;
+            color: var(--sub);
+            line-height: 1.6;
         }
 
         /* Block diagram */
@@ -1032,6 +1056,7 @@
     <nav class="doc-nav">
         <div class="doc-nav-inner">
             <a href="#panduan" class="active">Penggunaan</a>
+            <a href="#v2-features">Fitur v2.0</a>
             <a href="#matematika">Matematika AES</a>
             <a href="#pengantar">Pengantar</a>
             <a href="#struktur">Struktur</a>
@@ -1041,6 +1066,7 @@
             <a href="#pengujian">Metodologi Uji</a>
             <a href="#arsitektur">Arsitektur</a>
             <a href="#dart">Dart Sync</a>
+            <a href="#glosarium">Glosarium</a>
             <a href="#faq">FAQ</a>
         </div>
     </nav>
@@ -1181,29 +1207,117 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 2: MATEMATIKA AES
+       BAGIAN 2: FITUR DASHBOARD v2.0
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="v2-features">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                </svg>
+                2. Fitur Baru Dashboard v2.0 (Premium)
+            </h2>
+
+            <h3>2.1 Eksplorasi Biner: Bit-View Mode</h3>
+            <p>Fitur ini memungkinkan pengguna melihat representasi data di level bit (binary). Sangat berguna untuk
+                analisis struktur data sebelum dan sesudah diproses oleh algoritma AES.</p>
+            <ul>
+                <li><strong>Cara Aktifkan:</strong> Buka Tab Pengaturan → Centang <em>"Bit-View Mode"</em>.</li>
+                <li><strong>Efek Visual:</strong> Output teks (Manual/Batch) akan berubah menjadi deretan bit
+                    <code>01011010</code>.
+                </li>
+                <li><strong>Kegunaan Ilmiah:</strong> Memahami bagaimana padding PKCS7 mengisi sisa blok di level bit.
+                </li>
+            </ul>
+
+            <h3>2.2 Produktivitas: Pintasan Keyboard</h3>
+            <p>Navigasi secepat kilat tanpa perlu melepas tangan dari keyboard:</p>
+            <table class="round-table">
+                <thead>
+                    <tr>
+                        <th>Tombol</th>
+                        <th>Aksi / Fungsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>1</code> - <code>9</code></td>
+                        <td>Berpindah antar tab secara instan</td>
+                    </tr>
+                    <tr>
+                        <td><code>T</code></td>
+                        <td>Ganti Tema (Dark ↔ Light)</td>
+                    </tr>
+                    <tr>
+                        <td><code>Esc</code></td>
+                        <td>Buka / Tutup Sidebar navigasi</td>
+                    </tr>
+                    <tr>
+                        <td><code>Enter</code></td>
+                        <td>Terapkan Kunci Enkripsi (di modal kunci)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>2.3 Personalisasi & Performa</h3>
+            <ul>
+                <li><strong>Warna Aksen:</strong> 5 pilihan tema warna (Indigo, Cyan, Emerald, Rose, Amber) untuk
+                    kenyamanan
+                    visual.</li>
+                <li><strong>Reduced Motion:</strong> Menonaktifkan transisi CSS untuk performa maksimal pada perangkat
+                    entry-level.</li>
+                <li><strong>Export/Import Config:</strong> Simpan semua statistik dan preferensi UI Anda ke dalam file
+                    <code>.json</code>.
+                </li>
+            </ul>
+
+            <div class="callout green">
+                <div class="callout-title">🚀 High Performance Mode</div>
+                Mode ini mengoptimalkan proses rendering grafik Chart.js sehingga dashboard tetap responsif meskipun
+                menangani ribuan titik data latensi.
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 3: MATEMATIKA AES
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="matematika">
             <h2>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                     <path d="M4 7h16M4 12h16M4 17h16" />
                 </svg>
-                2. Matematika di Balik AES: Galois Field
+                3. Matematika di Balik AES: Galois Field
                 <span class="tag nist">GF(2⁸)</span>
             </h2>
 
-            <h3>2.1 Finite Field (Medan Hingga)</h3>
+            <h3>3.1 Finite Field (Medan Hingga)</h3>
             <p>AES tidak menggunakan matematika bilangan bulat biasa, melainkan <strong>Galois Field GF(2⁸)</strong>.
                 Dalam medan ini, semua hasil operasi (penjumlahan, perkalian) dijamin tetap berada dalam rentang 0–255
                 (1 byte).</p>
+
+            <div class="math-block">
+                <span class="math-sym">Addition:</span> A ⊕ B = (A XOR B) mod 2<br>
+                <span class="math-sym">Multiplication:</span> A ⊗ B = (A × B) mod P(x)<br>
+                <span class="math-sym">Irreducible Polynomial:</span> P(x) = x⁸ + x⁴ + x³ + x + 1 (<span
+                    class="math-val">0x11B</span>)
+            </div>
+
             <ul>
                 <li><strong>Penjumlahan:</strong> Identik dengan operasi bitwise <strong>XOR</strong>.</li>
-                <li><strong>Perkalian:</strong> Dilakukan terhadap polinomial irredusibel
-                    <code>m(x) = x⁸ + x⁴ + x³ + x + 1</code> (nilai hex: <code>0x11B</code>).
-                </li>
+                <li><strong>Perkalian:</strong> Melibatkan pergeseran bit (shift) dan XOR bersyarat jika terjadi
+                    overflow bit ke-8.</li>
             </ul>
 
-            <h3>2.2 Mengapa Menggunakan GF(2⁸)?</h3>
+            <h3>3.2 Contoh Operasi Matematika</h3>
+            <p>Perkalian dengan <code>{02}</code> (x) dalam GF(2⁸) sering disebut <code>xtime</code>:</p>
+            <div class="math-block">
+                If (byte & 0x80) {<br>
+                &nbsp;&nbsp;return (byte << 1) ^ <span class="math-val">0x1B</span>;<br>
+                    } else {<br>
+                    &nbsp;&nbsp;return (byte << 1);<br>
+                        }
+            </div>
             <p>Kriptografi membutuhkan sifat **"Avalanche Effect"** (efek domino). Dalam GF(2⁸), perubahan 1 bit pada
                 input akan menyebar secara merata dan tidak terduga ke seluruh output setelah operasi perkalian. Ini
                 mencegah pola linear yang mudah dipecah oleh kriptanalisis.</p>
@@ -1226,11 +1340,11 @@
                     <path d="M2 17l10 5 10-5" />
                     <path d="M2 12l10 5 10-5" />
                 </svg>
-                3. Pengantar AES (Advanced Encryption Standard)
+                4. Pengantar AES (Advanced Encryption Standard)
                 <span class="tag nist">NIST FIPS 197</span>
             </h2>
 
-            <h3>2.1 Sejarah Singkat</h3>
+            <h3>4.1 Sejarah Singkat</h3>
             <p>AES (<em>Advanced Encryption Standard</em>) dipilih oleh <strong>NIST</strong> (National Institute of
                 Standards and Technology) pada tahun 2001 sebagai standar enkripsi simetris pengganti DES. Algoritma
                 yang terpilih adalah <strong>Rijndael</strong>, karya kriptografer Belgia Joan Daemen dan Vincent
@@ -1303,10 +1417,10 @@
                     <rect x="14" y="14" width="7" height="7" />
                     <rect x="3" y="14" width="7" height="7" />
                 </svg>
-                4. Struktur Blok AES
+                5. Struktur Blok AES
             </h2>
 
-            <h3>3.1 Block Size</h3>
+            <h3>5.1 Block Size</h3>
             <p>AES beroperasi pada <strong>blok data 128-bit (16 byte)</strong> tetap. Jika plaintext lebih panjang dari
                 16 byte, ia dibagi menjadi beberapa blok, dan mode operasi (seperti CBC) menentukan cara memproses
                 blok-blok tersebut. Jika panjang data tidak kelipatan 16, ditambahkan <strong>padding PKCS7</strong>.
@@ -1368,7 +1482,7 @@
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 6v6l4 2" />
                 </svg>
-                5. Proses Per Round AES-256
+                6. Proses Per Round AES-256
             </h2>
 
             <div class="callout blue">
@@ -1407,12 +1521,20 @@
                 </div>
             </div>
 
-            <h3>4.2 Empat Transformasi Per Round</h3>
+            <h3>3.2 Empat Transformasi Per Round</h3>
 
             <h4>① SubBytes — Substitusi Non-linear</h4>
             <p>Setiap byte dalam state diganti menggunakan <strong>S-Box</strong> (Substitution Box) — tabel lookup 256
                 entri yang sudah ditetapkan di standar AES. Operasi ini bersifat non-linear, sehingga menyulitkan
                 analisis kriptografi.</p>
+
+            <div class="math-block">
+                <span class="math-sym">S-Box Logic:</span> f(x) = M(x⁻¹) ⊕ C<br>
+                1. Find multiplicative inverse <span class="math-val">x⁻¹</span> in GF(2⁸).<br>
+                2. Apply Affine Transformation <span class="math-val">M</span> and add constant <span class="math-val">C
+                    = {63}</span>.
+            </div>
+
             <ul>
                 <li>S-Box dibangun dari invers multiplicative di GF(2⁸) + transformasi affine</li>
                 <li>Contoh: byte <code>0x53</code> → S-Box → <code>0xED</code></li>
@@ -1465,16 +1587,16 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                 </svg>
-                6. Mode Operasi CBC (Cipher Block Chaining)
+                4. Mode Operasi CBC (Cipher Block Chaining)
                 <span class="tag mode">CBC</span>
             </h2>
 
-            <h3>5.1 Apa Itu Mode Operasi?</h3>
+            <h3>4.1 Apa Itu Mode Operasi?</h3>
             <p>AES dasar (<em>ECB — Electronic Codebook</em>) mengenkripsi tiap blok secara independen. Ini tidak aman
                 karena dua blok plaintext yang sama menghasilkan ciphertext yang sama. Mode operasi seperti CBC
                 mengatasi masalah ini.</p>
 
-            <h3>5.2 Cara Kerja CBC Enkripsi</h3>
+            <h3>4.2 Cara Kerja CBC Enkripsi</h3>
             <p>Pada CBC, setiap blok plaintext di-XOR dengan <strong>ciphertext blok sebelumnya</strong> sebelum
                 dienkripsi. Blok pertama di-XOR dengan <strong>IV (Initialization Vector)</strong>.</p>
             <div class="block-flow" style="flex-direction:column;gap:12px;">
@@ -1499,11 +1621,11 @@
                 <p style="font-size:12.5px;color:var(--muted);margin:0">Dan seterusnya hingga blok terakhir...</p>
             </div>
 
-            <h3>5.3 Cara Kerja CBC Dekripsi</h3>
+            <h3>4.3 Cara Kerja CBC Dekripsi</h3>
             <p>Dekripsi CBC bersifat <strong>parallelizable</strong> — setiap blok didekripsi terlebih dahulu oleh AES,
                 lalu di-XOR dengan ciphertext blok sebelumnya (atau IV untuk blok pertama).</p>
 
-            <h3>5.4 IV (Initialization Vector)</h3>
+            <h3>4.4 IV (Initialization Vector)</h3>
             <p>IV adalah nilai acak 16 byte yang digunakan untuk blok pertama. IV bersifat:</p>
             <ul>
                 <li><strong>Publik</strong> — tidak perlu dirahasiakan, boleh dikirim bersama ciphertext</li>
@@ -1529,19 +1651,28 @@
                     <path
                         d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
                 </svg>
-                7. Key Schedule &amp; Inverse Key Schedule
+                8. Key Schedule &amp; Inverse Key Schedule
             </h2>
 
-            <h3>6.1 Key Expansion</h3>
+            <h3>8.1 Key Expansion (Prinsip Dasar)</h3>
             <p>AES-256 tidak langsung menggunakan kunci asal pada tiap round. Proses <strong>Key Schedule</strong>
                 menghasilkan <em>round keys</em> (sub-key) dari kunci 256-bit untuk setiap round:</p>
+
+            <div class="math-block">
+                <span class="math-sym">Step 1:</span> Copy 256-bit key into first 8 words (w[0] - w[7]).<br>
+                <span class="math-sym">Step 2:</span> For words w[i] where i is multiple of 4:<br>
+                &nbsp;&nbsp;w[i] = w[i-4] ⊕ <span class="math-val">SubWord(RotWord(w[i-1]))</span> ⊕ <span
+                    class="math-val">Rcon[i/4]</span><br>
+                <span class="math-sym">Step 3:</span> For other words, w[i] = w[i-1] ⊕ w[i-4].
+            </div>
+
             <ul>
                 <li>AES-256 menghasilkan <strong>15 round keys</strong> (masing-masing 128-bit) dari kunci 256-bit</li>
                 <li>Proses menggunakan S-Box, rotasi kata (RotWord), dan konstanta round (Rcon)</li>
                 <li>Tiap round key digunakan sekali dalam operasi AddRoundKey</li>
             </ul>
 
-            <h3>7.2 Inverse Key Schedule (Mengapa Dekripsi Lebih Lambat?)</h3>
+            <h3>8.2 Inverse Key Schedule (Mengapa Dekripsi Lebih Lambat?)</h3>
             <p>Untuk dekripsi AES, diperlukan operasi <strong>InvMixColumns</strong> yang diaplikasikan ke round key
                 (kecuali round pertama dan terakhir). Ini disebut <em>Equivalent Inverse Cipher</em>.</p>
             <p>InvMixColumns melibatkan perkalian di <strong>GF(2⁸)</strong> menggunakan konstanta berbeda dari
@@ -1589,7 +1720,7 @@
                 yang dioptimasi browser.
             </div>
 
-            <h3>6.3 Jumlah Round Key per Varian</h3>
+            <h3>8.3 Jumlah Round Key per Varian</h3>
             <table class="round-table">
                 <thead>
                     <tr>
@@ -1623,7 +1754,7 @@
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 8: FORMAT OUTPUT
+       BAGIAN 9: FORMAT OUTPUT
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="output">
             <h2>
@@ -1631,10 +1762,10 @@
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                 </svg>
-                8. Format Output Enkripsi
+                9. Format Output Enkripsi
             </h2>
 
-            <h3>7.1 Struktur Output</h3>
+            <h3>9.1 Struktur Output</h3>
             <pre class="code-block"><span class="cm">// Output akhir adalah string Base64 dari:</span>
 [<span style="color:var(--violet)">IV: 16 byte random</span>] + [<span style="color:var(--cyan)">AES-CBC Ciphertext</span>]
 
@@ -1644,7 +1775,7 @@ Cipher  :  XX XX XX XX XX XX XX XX ... XX XX XX XX XX XX XX  (N×16 byte)
 Combined:  A1 B2 C3 ... 90 | XX XX XX ...
 Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base64)</pre>
 
-            <h3>7.2 Mengapa Ukuran Berbeda?</h3>
+            <h3>9.2 Mengapa Ukuran Berbeda?</h3>
             <ul>
                 <li><strong>Ciphertext:</strong> Selalu kelipatan 16 byte (karena blok AES + PKCS7 padding)</li>
                 <li><strong>Output (Base64):</strong> Ukuran = <code>⌈(16 + len(ciphertext)) / 3⌉ × 4</code> karakter
@@ -1654,7 +1785,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
                 <li>Ciphertext = selalu <strong>lebih besar</strong> dari plaintext (karena IV + padding + Base64)</li>
             </ul>
 
-            <h3>7.3 Tentang "Klaim Dosen" (Ukuran 2×)</h3>
+            <h3>9.3 Tentang "Klaim Dosen" (Ukuran 2×)</h3>
             <div class="callout yellow">
                 <div class="callout-title">📚 Penjelasan Klaim Ukuran 2×</div>
                 <p>Klaim bahwa "ukuran file hasil dekripsi = 2× ukuran asli" <strong>tidak berlaku standar</strong>
@@ -1667,7 +1798,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 9: METODOLOGI PENGUJIAN
+       BAGIAN 10: METODOLOGI PENGUJIAN
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="pengujian">
             <h2>
@@ -1676,21 +1807,21 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
                     <line x1="12" y1="20" x2="12" y2="4" />
                     <line x1="6" y1="20" x2="6" y2="14" />
                 </svg>
-                9. Metodologi Pengujian latensi
+                10. Metodologi Pengujian latensi
             </h2>
-            <h3>9.1 Pengukuran Waktu Eksisi</h3>
+            <h3>10.1 Pengukuran Waktu Eksisi</h3>
             <p>Dashboard menggunakan high-resolution timestamp melalui <code>performance.now()</code>. Berbeda dengan
                 <code>Date.now()</code> yang memiliki keterbatasan presisi, <code>performance.now()</code> memberikan
                 akurasi hingga seperseribu milidetik (μs), sangat krusial untuk mengukur operasi kriptografi yang cepat.
             </p>
 
-            <h3>9.2 Perhitungan Throughput</h3>
+            <h3>10.2 Perhitungan Throughput</h3>
             <p>Throughput dihitung dengan rumus:
                 <code>Speed (KB/s) = (Size in Bytes / (Time in ms / 1000)) / 1024</code>. Ini memberikan gambaran
                 performa hardware dalam memproses data per detik.
             </p>
 
-            <h3>9.3 Verifikasi Integritas</h3>
+            <h3>10.3 Verifikasi Integritas</h3>
             <p>Setiap operasi batch menyertakan uji verifikasi:
                 <code>Plaintext ≡ Decrypted(Encrypted(Plaintext))</code>. Jika hasil dekripsi tidak identik bit-per-bit
                 dengan input asli, dashboard akan menandai status <strong>FAIL</strong>.
@@ -1698,7 +1829,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 10: ARSITEKTUR SISTEM
+       BAGIAN 11: ARSITEKTUR SISTEM
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="arsitektur">
             <h2>
@@ -1707,7 +1838,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
                     <polyline points="2 17 12 22 22 17" />
                     <polyline points="2 12 12 17 22 12" />
                 </svg>
-                10. Arsitektur Dashboard Web
+                11. Arsitektur Dashboard Web
             </h2>
             <p>Aplikasi dibangun dengan arsitektur <strong>Serverless SPA</strong> (Single Page Application) yang fokus
                 pada keamanan data lokal.</p>
@@ -1721,7 +1852,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 11: KOMPATIBILITAS DART
+       BAGIAN 12: KOMPATIBILITAS DART
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="dart">
             <h2>
@@ -1729,10 +1860,10 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
                     <polyline points="16 18 22 12 16 6" />
                     <polyline points="8 6 2 12 8 18" />
                 </svg>
-                11. Kompatibilitas dengan Implementasi Dart
+                12. Kompatibilitas dengan Implementasi Dart
             </h2>
 
-            <h3>8.1 Pemetaan Fitur Dart → Web</h3>
+            <h3>12.1 Pemetaan Fitur Dart → Web</h3>
             <table class="round-table">
                 <thead>
                     <tr>
@@ -1784,7 +1915,7 @@ Base64  :  <span style="color:var(--green)">obLDlOX2Bxgp...</span>  (string Base
                 </tbody>
             </table>
 
-            <h3>8.2 Format Kunci Identik</h3>
+            <h3>12.2 Format Kunci Identik</h3>
             <p>Kunci yang digunakan adalah <strong>string UTF-8 32 karakter</strong>. Di Dart:
                 <code>Key.fromUtf8(_key)</code>. Di Web: <code>TextEncoder().encode(key)</code> → 32 byte →
                 <code>SubtleCrypto.importKey()</code>. Keduanya menghasilkan kunci 256-bit yang identik.
@@ -1811,7 +1942,54 @@ out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class=
         </section>
 
         <!-- ══════════════════════════════════════════
-       BAGIAN 12: FAQ
+       BAGIAN 13: GLOSARIUM TEKNIS
+  ══════════════════════════════════════════ -->
+        <section class="doc-section" id="glosarium">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+                13. Glosarium Teknis Kriptografi
+            </h2>
+
+            <div class="glossary-grid">
+                <div class="gloss-item">
+                    <span class="gloss-term">Avalanche Effect (Efek Domino)</span>
+                    <span class="gloss-def">Sifat di mana perubahan kecil pada input (misal: ganti 1 bit) menghasilkan
+                        perubahan besar pada output (misal: 50% bit ciphertext berubah). AES-256 memiliki avalanche
+                        effect yang sangat kuat.</span>
+                </div>
+                <div class="gloss-item">
+                    <span class="gloss-term">Confusion (Kebingungan)</span>
+                    <span class="gloss-def">Teknik untuk membuat hubungan antara statistik plaintext and ciphertext
+                        menjadi serumit mungkin (diperoleh lewat langkah SubBytes).</span>
+                </div>
+                <div class="gloss-item">
+                    <span class="gloss-term">Diffusion (Penebaran)</span>
+                    <span class="gloss-def">Teknik untuk menyebarkan pengaruh satu bit plaintext ke banyak bit
+                        ciphertext (diperoleh lewat langkah ShiftRows and MixColumns).</span>
+                </div>
+                <div class="gloss-item">
+                    <span class="gloss-term">Galois Field GF(2⁸)</span>
+                    <span class="gloss-def">Sistem matematika medan hingga di mana semua operasi aritmatika dilakukan
+                        terhadap polinomial, memastikan hasil tetap dalam rentang 8-bit (0-255).</span>
+                </div>
+                <div class="gloss-item">
+                    <span class="gloss-term">Padding PKCS7</span>
+                    <span class="gloss-def">Metode untuk melengkapi blok data agar sesuai dengan ukuran blok 16 byte
+                        cipher, dengan menambahkan byte yang nilainya sama dengan jumlah byte yang ditambahkan.</span>
+                </div>
+                <div class="gloss-item">
+                    <span class="gloss-term">Web Crypto API</span>
+                    <span class="gloss-def">Antarmuka standar browser modern untuk melakukan operasi kriptografi tingkat
+                        rendah (native) secara aman dan cepat.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════
+       BAGIAN 14: FAQ
   ══════════════════════════════════════════ -->
         <section class="doc-section" id="faq">
             <h2>
@@ -1820,7 +1998,7 @@ out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class=
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
-                12. FAQ
+                14. FAQ
             </h2>
 
             <h3>Apakah data saya aman?</h3>
@@ -1924,7 +2102,7 @@ out.<span class="fn">set</span>(iv,<span class="num">0</span>); out.<span class=
         applyTheme(lsGet('aes-theme') || 'dark');
 
         // Active nav highlight on scroll
-        const secs = ['panduan', 'matematika', 'pengantar', 'struktur', 'round', 'cbc', 'key-schedule', 'pengujian', 'arsitektur', 'output', 'dart', 'faq'];
+        const secs = ['panduan', 'v2-features', 'matematika', 'pengantar', 'struktur', 'round', 'cbc', 'key-schedule', 'output', 'pengujian', 'arsitektur', 'dart', 'glosarium', 'faq'];
         const links = document.querySelectorAll('.doc-nav a');
         window.addEventListener('scroll', () => {
             let cur = 'panduan';
